@@ -254,10 +254,10 @@ viewMain main =
                             [ ( "color", "red" ) ]
                      in
                         case couleur of
-                            Pique ->
+                            Coeur ->
                                 red
 
-                            Trefle ->
+                            Carreau ->
                                 red
 
                             _ ->
