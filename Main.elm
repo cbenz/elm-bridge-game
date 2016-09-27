@@ -10,7 +10,20 @@ import String
 
 main : Html msg
 main =
-    viewDonne donne1
+    div []
+        [ viewDonne donne1
+        , p []
+            [ text
+                ("La donne est "
+                    ++ (if isDonneValid donne1 then
+                            "valide"
+                        else
+                            "invalide"
+                       )
+                    ++ "."
+                )
+            ]
+        ]
 
 
 
@@ -42,6 +55,27 @@ type CouleurCarte
 
 type Carte
     = Carte ValeurCarte CouleurCarte
+
+
+couleurs : List CouleurCarte
+couleurs =
+    [ Pique, Coeur, Carreau, Trefle ]
+
+
+valeurs : List ValeurCarte
+valeurs =
+    [ V2, V3, V4, V5, V6, V7, V8, V9, V10, Valet, Dame, Roi, As ]
+
+
+cartes : List Carte
+cartes =
+    List.concatMap
+        (\couleur ->
+            List.map
+                (\valeur -> Carte valeur couleur)
+                valeurs
+        )
+        couleurs
 
 
 type alias Main =
@@ -117,8 +151,21 @@ showCouleurCarte couleur =
 
 
 -- generate : () -> Donne
--- isDonneValid : Donne -> Bool
--- isDonneValid {nord,sud,est,ouest} =
+
+
+isDonneValid : Donne -> Bool
+isDonneValid { nord, sud, est, ouest } =
+    let
+        mains =
+            [ nord, sud, est, ouest ]
+
+        validLength main =
+            List.length main == 13
+
+        inOneOfMains carte =
+            List.any (List.member carte) mains
+    in
+        List.all validLength mains && List.all inOneOfMains cartes
 
 
 type alias MainParCouleur =
@@ -144,55 +191,60 @@ groupByCouleur main =
         )
         { pique = [], coeur = [], carreau = [], trefle = [] }
         main
-        |> let
-            sort couleur =
-                List.sortBy valeurCarteIndex couleur |> List.reverse
-           in
-            \{ pique, coeur, carreau, trefle } ->
-                { pique = sort pique, coeur = sort coeur, carreau = sort carreau, trefle = sort trefle }
+        |> \{ pique, coeur, carreau, trefle } ->
+            { pique = sortMain pique
+            , coeur = sortMain coeur
+            , carreau = sortMain carreau
+            , trefle = sortMain trefle
+            }
 
 
-valeurCarteIndex : Carte -> Int
-valeurCarteIndex (Carte valeur _) =
-    case valeur of
-        V2 ->
-            0
+sortMain : Main -> Main
+sortMain main =
+    let
+        valeurCarteIndex : Carte -> Int
+        valeurCarteIndex (Carte valeur _) =
+            case valeur of
+                V2 ->
+                    0
 
-        V3 ->
-            1
+                V3 ->
+                    1
 
-        V4 ->
-            2
+                V4 ->
+                    2
 
-        V5 ->
-            3
+                V5 ->
+                    3
 
-        V6 ->
-            4
+                V6 ->
+                    4
 
-        V7 ->
-            5
+                V7 ->
+                    5
 
-        V8 ->
-            6
+                V8 ->
+                    6
 
-        V9 ->
-            7
+                V9 ->
+                    7
 
-        V10 ->
-            8
+                V10 ->
+                    8
 
-        Valet ->
-            9
+                Valet ->
+                    9
 
-        Dame ->
-            10
+                Dame ->
+                    10
 
-        Roi ->
-            11
+                Roi ->
+                    11
 
-        As ->
-            12
+                As ->
+                    12
+    in
+        List.sortBy valeurCarteIndex main |> List.reverse
 
 
 
