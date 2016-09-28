@@ -263,6 +263,30 @@ sortCartes cartes =
         List.sortBy valeurCarteIndex cartes |> List.reverse
 
 
+type alias Fit =
+    List CouleurCarte
+
+
+getFittedCouleurs : Main -> Main -> Fit
+getFittedCouleurs main1 main2 =
+    List.filterMap
+        (\( getter, couleur ) ->
+            if
+                List.length
+                    (List.concat [ getter main1, getter main2 ])
+                    >= 8
+            then
+                Just couleur
+            else
+                Nothing
+        )
+        [ ( .pique, Pique )
+        , ( .coeur, Coeur )
+        , ( .carreau, Carreau )
+        , ( .trefle, Trefle )
+        ]
+
+
 type alias Points =
     { honneur : Int
     , longueur : Int
@@ -453,16 +477,20 @@ view { donne } =
     div
         []
         [ viewDonne donne
-        , p []
-            [ text
-                ("La donne est "
-                    ++ (if isDonneValid donne then
-                            "valide"
-                        else
-                            "invalide"
-                       )
-                    ++ "."
-                )
+        , ul []
+            [ li []
+                [ text
+                    ("La donne est "
+                        ++ (if isDonneValid donne then
+                                "valide"
+                            else
+                                "invalide"
+                           )
+                        ++ "."
+                    )
+                ]
+            , li [] [ viewFit "Nord et Sud" (getFittedCouleurs donne.nord donne.sud) ]
+            , li [] [ viewFit "Est et Ouest" (getFittedCouleurs donne.est donne.ouest) ]
             ]
         , button [ onClick GenerateDonne ] [ text "Générer" ]
         ]
@@ -509,22 +537,7 @@ viewMain main =
     let
         viewMainCouleur couleur cartes =
             [ span
-                [ style
-                    (let
-                        red =
-                            [ ( "color", "red" ) ]
-                     in
-                        case couleur of
-                            Coeur ->
-                                red
-
-                            Carreau ->
-                                red
-
-                            _ ->
-                                []
-                    )
-                ]
+                [ style (couleurCarteStyle couleur) ]
                 [ text (showCouleurCarte couleur) ]
             , text " "
             , (if List.isEmpty cartes then
@@ -550,6 +563,53 @@ viewMain main =
             , li [] (viewMainCouleur Carreau main.carreau)
             , li [] (viewMainCouleur Trefle main.trefle)
             ]
+
+
+viewFit : String -> Fit -> Html msg
+viewFit msg fit =
+    span []
+        (List.concat
+            [ [ text (msg ++ " ") ]
+            , case fit of
+                [] ->
+                    [ text "ne sont pas fittés." ]
+
+                couleurs ->
+                    text "sont fittés à "
+                        :: (List.intersperse (text " ")
+                                (List.map
+                                    (\couleur ->
+                                        span
+                                            [ style (couleurCarteStyle couleur) ]
+                                            [ text (showCouleurCarte couleur) ]
+                                    )
+                                    couleurs
+                                )
+                           )
+                        ++ [ text "." ]
+            ]
+        )
+
+
+
+-- span [ style (couleurCarteStyle couleur) ]
+
+
+couleurCarteStyle : CouleurCarte -> List ( String, String )
+couleurCarteStyle couleur =
+    let
+        red =
+            [ ( "color", "red" ) ]
+    in
+        case couleur of
+            Coeur ->
+                red
+
+            Carreau ->
+                red
+
+            _ ->
+                []
 
 
 
