@@ -356,42 +356,27 @@ view model =
 viewDonne : Donne -> Html msg
 viewDonne { nord, sud, est, ouest } =
     let
-        nineByNineTable styleAttributes nord sud est ouest center =
-            table [ style styleAttributes ]
-                [ tr []
-                    [ td [] []
-                    , td [] [ nord ]
-                    , td [] []
-                    ]
-                , tr []
-                    [ td [] [ ouest ]
-                    , center
-                    , td [] [ est ]
-                    ]
-                , tr []
-                    [ td [] []
-                    , td [] [ sud ]
-                    , td [] []
-                    ]
-                ]
+        flexItem child =
+            div
+                [ style [ ( "flex", "1 33%" ) ] ]
+                [ child ]
     in
-        nineByNineTable
-            []
-            (viewMain nord)
-            (viewMain sud)
-            (viewMain est)
-            (viewMain ouest)
-            (nineByNineTable
-                [ ( "background-color", "lightgray" )
-                , ( "text-align", "center" )
-                , ( "width", "100%" )
+        div
+            [ style
+                [ ( "display", "flex" )
+                , ( "flex-wrap", "wrap" )
                 ]
-                (text "N")
-                (text "S")
-                (text "E")
-                (text "O")
-                (td [] [])
-            )
+            ]
+            [ flexItem (text "")
+            , flexItem (viewMain nord)
+            , flexItem (text "")
+            , flexItem (viewMain ouest)
+            , flexItem (text "")
+            , flexItem (viewMain est)
+            , flexItem (text "")
+            , flexItem (viewMain sud)
+            , flexItem (text "")
+            ]
 
 
 viewMain : Main -> Html msg
