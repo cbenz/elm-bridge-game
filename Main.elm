@@ -1,29 +1,26 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Html.App
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import String
+import Random
+import Array
+import Random.Array
 
 
 -- MAIN
 
 
-main : Html msg
+main : Program Never
 main =
-    div []
-        [ viewDonne donne1
-        , p []
-            [ text
-                ("La donne est "
-                    ++ (if isDonneValid donne1 then
-                            "valide"
-                        else
-                            "invalide"
-                       )
-                    ++ "."
-                )
-            ]
-        ]
+    Html.App.program
+        { init = init
+        , update = update
+        , subscriptions = always Sub.none
+        , view = view
+        }
 
 
 
@@ -90,6 +87,11 @@ type alias Donne =
     }
 
 
+emptyDonne : Donne
+emptyDonne =
+    { nord = [], sud = [], est = [], ouest = [] }
+
+
 showValeurCarte : ValeurCarte -> String
 showValeurCarte valeur =
     case valeur of
@@ -149,10 +151,6 @@ showCouleurCarte couleur =
             "♣"
 
 
-
--- generate : () -> Donne
-
-
 isDonneValid : Donne -> Bool
 isDonneValid { nord, sud, est, ouest } =
     let
@@ -169,27 +167,36 @@ isDonneValid { nord, sud, est, ouest } =
 
 
 type alias MainParCouleur =
-    { pique : List Carte, coeur : List Carte, carreau : List Carte, trefle : List Carte }
+    { pique : List Carte
+    , coeur : List Carte
+    , carreau : List Carte
+    , trefle : List Carte
+    }
+
+
+emptyMainParCouleur : MainParCouleur
+emptyMainParCouleur =
+    { pique = [], coeur = [], carreau = [], trefle = [] }
 
 
 groupByCouleur : Main -> MainParCouleur
 groupByCouleur main =
     List.foldl
-        (\((Carte _ couleur) as carte) accu ->
+        (\((Carte _ couleur) as carte) mainAccu ->
             case couleur of
                 Pique ->
-                    { accu | pique = carte :: accu.pique }
+                    { mainAccu | pique = carte :: mainAccu.pique }
 
                 Coeur ->
-                    { accu | coeur = carte :: accu.coeur }
+                    { mainAccu | coeur = carte :: mainAccu.coeur }
 
                 Carreau ->
-                    { accu | carreau = carte :: accu.carreau }
+                    { mainAccu | carreau = carte :: mainAccu.carreau }
 
                 Trefle ->
-                    { accu | trefle = carte :: accu.trefle }
+                    { mainAccu | trefle = carte :: mainAccu.trefle }
         )
-        { pique = [], coeur = [], carreau = [], trefle = [] }
+        emptyMainParCouleur
         main
         |> \{ pique, coeur, carreau, trefle } ->
             { pique = sortMain pique
@@ -248,7 +255,102 @@ sortMain main =
 
 
 
+-- GENERATE
+
+
+cartesGenerator : Random.Generator (List Carte)
+cartesGenerator =
+    Array.fromList cartes |> Random.Array.shuffle |> Random.map Array.toList
+
+
+donneGenerator : Random.Generator Donne
+donneGenerator =
+    Random.map donneFromCartes cartesGenerator
+
+
+donneFromCartes : List Carte -> Donne
+donneFromCartes cartes =
+    List.foldl
+        (\( index, carte ) donneAccu ->
+            let
+                modulo =
+                    index % 4
+            in
+                if modulo == 0 then
+                    { donneAccu | nord = carte :: donneAccu.nord }
+                else if modulo == 1 then
+                    { donneAccu | sud = carte :: donneAccu.sud }
+                else if modulo == 2 then
+                    { donneAccu | est = carte :: donneAccu.est }
+                else
+                    { donneAccu | ouest = carte :: donneAccu.ouest }
+        )
+        emptyDonne
+        (List.indexedMap (,) cartes)
+
+
+
+-- MODEL
+
+
+type alias Model =
+    { donne : Donne }
+
+
+
+-- INIT
+
+
+init : ( Model, Cmd msg )
+init =
+    ( { donne = donne1 }, Cmd.none )
+
+
+
+-- MSG
+
+
+type Msg
+    = GenerateDonne
+    | SetDonne Donne
+
+
+
+-- UPDATE
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        GenerateDonne ->
+            ( model, Random.generate SetDonne donneGenerator )
+
+        SetDonne donne ->
+            ( { model | donne = donne }, Cmd.none )
+
+
+
 -- VIEW
+
+
+view : Model -> Html Msg
+view model =
+    div
+        []
+        [ viewDonne model.donne
+        , p []
+            [ text
+                ("La donne est "
+                    ++ (if isDonneValid model.donne then
+                            "valide"
+                        else
+                            "invalide"
+                       )
+                    ++ "."
+                )
+            ]
+        , button [ onClick GenerateDonne ] [ text "Générer" ]
+        ]
 
 
 viewDonne : Donne -> Html msg
@@ -298,7 +400,7 @@ viewMain main =
         mainParCouleur =
             groupByCouleur main
 
-        viewMainCouleur couleur getter =
+        viewMainCouleur couleur cartes =
             [ span
                 [ style
                     (let
@@ -318,10 +420,14 @@ viewMain main =
                 ]
                 [ text (showCouleurCarte couleur) ]
             , text " "
-            , List.map
-                (\(Carte valeur _) -> showValeurCarte valeur)
-                (getter mainParCouleur)
-                |> String.join " "
+            , (if List.isEmpty cartes then
+                "–"
+               else
+                List.map
+                    (\(Carte valeur _) -> showValeurCarte valeur)
+                    cartes
+                    |> String.join " "
+              )
                 |> text
             ]
     in
@@ -332,10 +438,10 @@ viewMain main =
                 , ( "padding", "0" )
                 ]
             ]
-            [ li [] (viewMainCouleur Pique .pique)
-            , li [] (viewMainCouleur Coeur .coeur)
-            , li [] (viewMainCouleur Carreau .carreau)
-            , li [] (viewMainCouleur Trefle .trefle)
+            [ li [] (viewMainCouleur Pique mainParCouleur.pique)
+            , li [] (viewMainCouleur Coeur mainParCouleur.coeur)
+            , li [] (viewMainCouleur Carreau mainParCouleur.carreau)
+            , li [] (viewMainCouleur Trefle mainParCouleur.trefle)
             ]
 
 
