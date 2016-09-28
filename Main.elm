@@ -76,6 +76,14 @@ cartes =
 
 
 type alias Main =
+    { pique : CouleurDansMain
+    , coeur : CouleurDansMain
+    , carreau : CouleurDansMain
+    , trefle : CouleurDansMain
+    }
+
+
+type alias CouleurDansMain =
     List Carte
 
 
@@ -89,7 +97,11 @@ type alias Donne =
 
 emptyDonne : Donne
 emptyDonne =
-    { nord = [], sud = [], est = [], ouest = [] }
+    { nord = emptyMain
+    , sud = emptyMain
+    , est = emptyMain
+    , ouest = emptyMain
+    }
 
 
 showValeurCarte : ValeurCarte -> String
@@ -151,6 +163,11 @@ showCouleurCarte couleur =
             "♣"
 
 
+concatMain : Main -> List Carte
+concatMain main =
+    List.concat [ main.pique, main.coeur, main.carreau, main.trefle ]
+
+
 isDonneValid : Donne -> Bool
 isDonneValid { nord, sud, est, ouest } =
     let
@@ -158,29 +175,21 @@ isDonneValid { nord, sud, est, ouest } =
             [ nord, sud, est, ouest ]
 
         validLength main =
-            List.length main == 13
+            List.length (concatMain main) == 13
 
         inOneOfMains carte =
-            List.any (List.member carte) mains
+            List.any (\main -> List.member carte (concatMain main)) mains
     in
         List.all validLength mains && List.all inOneOfMains cartes
 
 
-type alias MainParCouleur =
-    { pique : List Carte
-    , coeur : List Carte
-    , carreau : List Carte
-    , trefle : List Carte
-    }
-
-
-emptyMainParCouleur : MainParCouleur
-emptyMainParCouleur =
+emptyMain : Main
+emptyMain =
     { pique = [], coeur = [], carreau = [], trefle = [] }
 
 
-groupByCouleur : Main -> MainParCouleur
-groupByCouleur main =
+mainFromCartes : List Carte -> Main
+mainFromCartes cartes =
     List.foldl
         (\((Carte _ couleur) as carte) mainAccu ->
             case couleur of
@@ -196,18 +205,18 @@ groupByCouleur main =
                 Trefle ->
                     { mainAccu | trefle = carte :: mainAccu.trefle }
         )
-        emptyMainParCouleur
-        main
+        emptyMain
+        cartes
         |> \{ pique, coeur, carreau, trefle } ->
-            { pique = sortMain pique
-            , coeur = sortMain coeur
-            , carreau = sortMain carreau
-            , trefle = sortMain trefle
+            { pique = sortCartes pique
+            , coeur = sortCartes coeur
+            , carreau = sortCartes carreau
+            , trefle = sortCartes trefle
             }
 
 
-sortMain : Main -> Main
-sortMain main =
+sortCartes : List Carte -> List Carte
+sortCartes cartes =
     let
         valeurCarteIndex : Carte -> Int
         valeurCarteIndex (Carte valeur _) =
@@ -251,7 +260,107 @@ sortMain main =
                 As ->
                     12
     in
-        List.sortBy valeurCarteIndex main |> List.reverse
+        List.sortBy valeurCarteIndex cartes |> List.reverse
+
+
+type alias Points =
+    { honneur : Int
+    , longueur : Int
+    , distribution : Int
+    }
+
+
+pointsHonneurCarte : Carte -> Int
+pointsHonneurCarte (Carte valeur _) =
+    case valeur of
+        Valet ->
+            1
+
+        Dame ->
+            2
+
+        Roi ->
+            3
+
+        As ->
+            4
+
+        _ ->
+            0
+
+
+pointsLongueurCouleur : CouleurDansMain -> Maybe Int
+pointsLongueurCouleur cartes =
+    let
+        isBelleCouleur cartes =
+            let
+                valeurs =
+                    List.map
+                        (\(Carte valeur _) -> valeur)
+                        cartes
+            in
+                List.any
+                    (List.all (\honneur -> List.member honneur valeurs))
+                    [ [ As ], [ Roi ], [ Dame, Valet ] ]
+                    && (List.length cartes >= 5)
+    in
+        if isBelleCouleur cartes then
+            Just ((List.length cartes) - 4)
+        else
+            Nothing
+
+
+pointsDistributionCouleur : CouleurDansMain -> Maybe Int
+pointsDistributionCouleur cartes =
+    if List.length cartes == 0 then
+        -- chicane
+        Just 3
+    else if List.length cartes == 1 then
+        -- singleton
+        Just 2
+    else if List.length cartes == 2 then
+        -- doubleton
+        Just 1
+    else
+        Nothing
+
+
+pointsMain : Main -> Points
+pointsMain main =
+    { honneur =
+        List.map pointsHonneurCarte (concatMain main) |> List.sum
+    , longueur =
+        [ pointsLongueurCouleur main.pique
+        , pointsLongueurCouleur main.coeur
+        , pointsLongueurCouleur main.carreau
+        , pointsLongueurCouleur main.trefle
+        ]
+            |> List.map (Maybe.withDefault 0)
+            |> List.sum
+    , distribution =
+        [ pointsDistributionCouleur main.pique
+        , pointsDistributionCouleur main.coeur
+        , pointsDistributionCouleur main.carreau
+        , pointsDistributionCouleur main.trefle
+        ]
+            |> List.map (Maybe.withDefault 0)
+            |> List.sum
+    }
+
+
+showPoints : Points -> String
+showPoints { honneur, longueur, distribution } =
+    [ toString honneur ++ "H"
+    , if longueur == 0 then
+        ""
+      else
+        toString longueur ++ "L"
+    , if distribution == 0 then
+        ""
+      else
+        toString distribution ++ "D"
+    ]
+        |> String.join " "
 
 
 
@@ -285,8 +394,14 @@ donneFromCartes cartes =
                 else
                     { donneAccu | ouest = carte :: donneAccu.ouest }
         )
-        emptyDonne
+        { nord = [], sud = [], est = [], ouest = [] }
         (List.indexedMap (,) cartes)
+        |> \{ nord, sud, est, ouest } ->
+            { nord = mainFromCartes nord
+            , sud = mainFromCartes sud
+            , est = mainFromCartes est
+            , ouest = mainFromCartes ouest
+            }
 
 
 
@@ -334,14 +449,14 @@ update msg model =
 
 
 view : Model -> Html Msg
-view model =
+view { donne } =
     div
         []
-        [ viewDonne model.donne
+        [ viewDonne donne
         , p []
             [ text
                 ("La donne est "
-                    ++ (if isDonneValid model.donne then
+                    ++ (if isDonneValid donne then
                             "valide"
                         else
                             "invalide"
@@ -356,10 +471,8 @@ view model =
 viewDonne : Donne -> Html msg
 viewDonne { nord, sud, est, ouest } =
     let
-        flexItem child =
-            div
-                [ style [ ( "flex", "1 33%" ) ] ]
-                [ child ]
+        flexItem children =
+            div [ style [ ( "flex", "1 33%" ) ] ] children
     in
         div
             [ style
@@ -367,24 +480,33 @@ viewDonne { nord, sud, est, ouest } =
                 , ( "flex-wrap", "wrap" )
                 ]
             ]
-            [ flexItem (text "")
-            , flexItem (viewMain nord)
-            , flexItem (text "")
-            , flexItem (viewMain ouest)
-            , flexItem (text "")
-            , flexItem (viewMain est)
-            , flexItem (text "")
-            , flexItem (viewMain sud)
-            , flexItem (text "")
+            [ flexItem [ text "" ]
+            , flexItem
+                [ viewMain nord
+                , text (showPoints (pointsMain nord))
+                ]
+            , flexItem [ text "" ]
+            , flexItem
+                [ viewMain ouest
+                , text (showPoints (pointsMain ouest))
+                ]
+            , flexItem [ text "" ]
+            , flexItem
+                [ viewMain est
+                , text (showPoints (pointsMain est))
+                ]
+            , flexItem [ text "" ]
+            , flexItem
+                [ viewMain sud
+                , text (showPoints (pointsMain sud))
+                ]
+            , flexItem [ text "" ]
             ]
 
 
 viewMain : Main -> Html msg
 viewMain main =
     let
-        mainParCouleur =
-            groupByCouleur main
-
         viewMainCouleur couleur cartes =
             [ span
                 [ style
@@ -423,10 +545,10 @@ viewMain main =
                 , ( "padding", "0" )
                 ]
             ]
-            [ li [] (viewMainCouleur Pique mainParCouleur.pique)
-            , li [] (viewMainCouleur Coeur mainParCouleur.coeur)
-            , li [] (viewMainCouleur Carreau mainParCouleur.carreau)
-            , li [] (viewMainCouleur Trefle mainParCouleur.trefle)
+            [ li [] (viewMainCouleur Pique main.pique)
+            , li [] (viewMainCouleur Coeur main.coeur)
+            , li [] (viewMainCouleur Carreau main.carreau)
+            , li [] (viewMainCouleur Trefle main.trefle)
             ]
 
 
@@ -437,63 +559,67 @@ viewMain main =
 donne1 : Donne
 donne1 =
     { nord =
-        [ Carte As Pique
-        , Carte Roi Pique
-        , Carte Dame Pique
-        , Carte V8 Pique
-        , Carte V5 Pique
-        , Carte V7 Coeur
-        , Carte As Trefle
-        , Carte Roi Trefle
-        , Carte V3 Trefle
-        , Carte V2 Trefle
-        , Carte V4 Carreau
-        , Carte V3 Carreau
-        , Carte V2 Carreau
-        ]
+        mainFromCartes
+            [ Carte As Pique
+            , Carte Roi Pique
+            , Carte Dame Pique
+            , Carte V8 Pique
+            , Carte V5 Pique
+            , Carte V7 Coeur
+            , Carte As Trefle
+            , Carte Roi Trefle
+            , Carte V3 Trefle
+            , Carte V2 Trefle
+            , Carte V4 Carreau
+            , Carte V3 Carreau
+            , Carte V2 Carreau
+            ]
     , sud =
-        [ Carte Valet Pique
-        , Carte V10 Pique
-        , Carte V9 Pique
-        , Carte Dame Coeur
-        , Carte V6 Coeur
-        , Carte V3 Coeur
-        , Carte V2 Coeur
-        , Carte Dame Trefle
-        , Carte Valet Trefle
-        , Carte V10 Trefle
-        , Carte V9 Trefle
-        , Carte As Carreau
-        , Carte V5 Carreau
-        ]
+        mainFromCartes
+            [ Carte Valet Pique
+            , Carte V10 Pique
+            , Carte V9 Pique
+            , Carte Dame Coeur
+            , Carte V6 Coeur
+            , Carte V3 Coeur
+            , Carte V2 Coeur
+            , Carte Dame Trefle
+            , Carte Valet Trefle
+            , Carte V10 Trefle
+            , Carte V9 Trefle
+            , Carte As Carreau
+            , Carte V5 Carreau
+            ]
     , est =
-        [ Carte V7 Pique
-        , Carte V6 Pique
-        , Carte As Coeur
-        , Carte V4 Coeur
-        , Carte V5 Coeur
-        , Carte V9 Coeur
-        , Carte V8 Trefle
-        , Carte V7 Trefle
-        , Carte Roi Carreau
-        , Carte Dame Carreau
-        , Carte V10 Carreau
-        , Carte V9 Carreau
-        , Carte V8 Carreau
-        ]
+        mainFromCartes
+            [ Carte V7 Pique
+            , Carte V6 Pique
+            , Carte As Coeur
+            , Carte V4 Coeur
+            , Carte V5 Coeur
+            , Carte V9 Coeur
+            , Carte V8 Trefle
+            , Carte V7 Trefle
+            , Carte Roi Carreau
+            , Carte Dame Carreau
+            , Carte V10 Carreau
+            , Carte V9 Carreau
+            , Carte V8 Carreau
+            ]
     , ouest =
-        [ Carte V4 Pique
-        , Carte V3 Pique
-        , Carte V2 Pique
-        , Carte Roi Coeur
-        , Carte Valet Coeur
-        , Carte V10 Coeur
-        , Carte V8 Coeur
-        , Carte V6 Trefle
-        , Carte V5 Trefle
-        , Carte V4 Trefle
-        , Carte Valet Carreau
-        , Carte V7 Carreau
-        , Carte V6 Carreau
-        ]
+        mainFromCartes
+            [ Carte V4 Pique
+            , Carte V3 Pique
+            , Carte V2 Pique
+            , Carte Roi Coeur
+            , Carte Valet Coeur
+            , Carte V10 Coeur
+            , Carte V8 Coeur
+            , Carte V6 Trefle
+            , Carte V5 Trefle
+            , Carte V4 Trefle
+            , Carte Valet Carreau
+            , Carte V7 Carreau
+            , Carte V6 Carreau
+            ]
     }
