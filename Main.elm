@@ -486,7 +486,8 @@ view : Model -> Html Msg
 view { donne } =
     div
         []
-        [ viewDonne donne
+        [ h1 [] [ text "🂡 Elm Bridge Game" ]
+        , viewDonne donne
         , ul []
             [ li []
                 [ text
@@ -503,6 +504,8 @@ view { donne } =
             , li [] [ viewFits "Est et Ouest" (getFits donne.est donne.ouest) ]
             ]
         , button [ onClick GenerateDonne ] [ text "Générer" ]
+        , hr [] []
+        , a [ href "https://github.com/cbenz/elm-bridge-game" ] [ text "Source code" ]
         ]
 
 
