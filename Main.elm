@@ -264,21 +264,21 @@ sortCartes cartes =
 
 
 type alias Fit =
-    List CouleurCarte
+    ( CouleurCarte, Int )
 
 
-getFittedCouleurs : Main -> Main -> Fit
-getFittedCouleurs main1 main2 =
+getFits : Main -> Main -> List Fit
+getFits main1 main2 =
     List.filterMap
         (\( getter, couleur ) ->
-            if
-                List.length
-                    (List.concat [ getter main1, getter main2 ])
-                    >= 8
-            then
-                Just couleur
-            else
-                Nothing
+            let
+                fitLength =
+                    List.length (List.concat [ getter main1, getter main2 ])
+            in
+                if fitLength >= 8 then
+                    Just ( couleur, fitLength )
+                else
+                    Nothing
         )
         [ ( .pique, Pique )
         , ( .coeur, Coeur )
@@ -387,6 +387,16 @@ showPoints { honneur, longueur, distribution } =
         |> String.join " "
 
 
+showRepartition : Main -> String
+showRepartition { carreau, coeur, pique, trefle } =
+    [ carreau, coeur, pique, trefle ]
+        |> List.map List.length
+        |> List.sort
+        |> List.reverse
+        |> List.map toString
+        |> String.join "-"
+
+
 
 -- GENERATE
 
@@ -489,8 +499,8 @@ view { donne } =
                         ++ "."
                     )
                 ]
-            , li [] [ viewFit "Nord et Sud" (getFittedCouleurs donne.nord donne.sud) ]
-            , li [] [ viewFit "Est et Ouest" (getFittedCouleurs donne.est donne.ouest) ]
+            , li [] [ viewFits "Nord et Sud" (getFits donne.nord donne.sud) ]
+            , li [] [ viewFits "Est et Ouest" (getFits donne.est donne.ouest) ]
             ]
         , button [ onClick GenerateDonne ] [ text "Générer" ]
         ]
@@ -501,6 +511,14 @@ viewDonne { nord, sud, est, ouest } =
     let
         flexItem children =
             div [ style [ ( "flex", "1 33%" ) ] ] children
+
+        mainChildren main =
+            [ viewMain main
+            , ulWithoutBullets
+                [ li [] [ text (showPoints (pointsMain main)) ]
+                , li [] [ text (showRepartition main) ]
+                ]
+            ]
     in
         div
             [ style
@@ -509,25 +527,13 @@ viewDonne { nord, sud, est, ouest } =
                 ]
             ]
             [ flexItem [ text "" ]
-            , flexItem
-                [ viewMain nord
-                , text (showPoints (pointsMain nord))
-                ]
+            , flexItem (mainChildren nord)
             , flexItem [ text "" ]
-            , flexItem
-                [ viewMain ouest
-                , text (showPoints (pointsMain ouest))
-                ]
+            , flexItem (mainChildren ouest)
             , flexItem [ text "" ]
-            , flexItem
-                [ viewMain est
-                , text (showPoints (pointsMain est))
-                ]
+            , flexItem (mainChildren est)
             , flexItem [ text "" ]
-            , flexItem
-                [ viewMain sud
-                , text (showPoints (pointsMain sud))
-                ]
+            , flexItem (mainChildren sud)
             , flexItem [ text "" ]
             ]
 
@@ -551,13 +557,7 @@ viewMain main =
                 |> text
             ]
     in
-        ul
-            [ style
-                [ ( "list-style-type", "none" )
-                , ( "margin", "0" )
-                , ( "padding", "0" )
-                ]
-            ]
+        ulWithoutBullets
             [ li [] (viewMainCouleur Pique main.pique)
             , li [] (viewMainCouleur Coeur main.coeur)
             , li [] (viewMainCouleur Carreau main.carreau)
@@ -565,8 +565,8 @@ viewMain main =
             ]
 
 
-viewFit : String -> Fit -> Html msg
-viewFit msg fit =
+viewFits : String -> List Fit -> Html msg
+viewFits msg fit =
     span []
         (List.concat
             [ [ text (msg ++ " ") ]
@@ -575,13 +575,18 @@ viewFit msg fit =
                     [ text "ne sont pas fittés." ]
 
                 couleurs ->
-                    text "sont fittés à "
-                        :: (List.intersperse (text " ")
+                    text "sont fittés "
+                        :: (viewFrenchEnumeration
                                 (List.map
-                                    (\couleur ->
-                                        span
-                                            [ style (couleurCarteStyle couleur) ]
-                                            [ text (showCouleurCarte couleur) ]
+                                    (\( couleur, fitLength ) ->
+                                        span []
+                                            [ text (toString fitLength)
+                                            , sup [] [ text "ème" ]
+                                            , text " à "
+                                            , span
+                                                [ style (couleurCarteStyle couleur) ]
+                                                [ text (showCouleurCarte couleur) ]
+                                            ]
                                     )
                                     couleurs
                                 )
@@ -591,8 +596,22 @@ viewFit msg fit =
         )
 
 
+viewFrenchEnumeration : List (Html msg) -> List (Html msg)
+viewFrenchEnumeration xs =
+    let
+        firsts =
+            List.take (List.length xs - 1) xs
 
--- span [ style (couleurCarteStyle couleur) ]
+        lastAsList =
+            List.drop (List.length xs - 1) xs
+    in
+        (if List.length firsts > 0 then
+            List.intersperse (text ", ") firsts
+                ++ [ text " et " ]
+         else
+            []
+        )
+            ++ lastAsList
 
 
 couleurCarteStyle : CouleurCarte -> List ( String, String )
@@ -610,6 +629,18 @@ couleurCarteStyle couleur =
 
             _ ->
                 []
+
+
+ulWithoutBullets : List (Html msg) -> Html msg
+ulWithoutBullets children =
+    ul
+        [ style
+            [ ( "list-style-type", "none" )
+            , ( "margin", "0" )
+            , ( "padding", "0" )
+            ]
+        ]
+        children
 
 
 
