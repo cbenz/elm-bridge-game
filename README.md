@@ -15,5 +15,5 @@ Demo: https://cbenz.github.io/elm-bridge-game/
 Just to remember how to compile the demo:
 
 ```
-elm-make Main.elm --warn --output=docs/index.html
+elm-make src/Main.elm --warn --output=docs/index.html
 ```

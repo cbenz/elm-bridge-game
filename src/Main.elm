@@ -215,6 +215,25 @@ mainFromCartes cartes =
             }
 
 
+repartitionMain : Main -> List Int
+repartitionMain { pique, coeur, carreau, trefle } =
+    List.map List.length [ pique, coeur, carreau, trefle ]
+
+
+isMainReguliere : Main -> Bool
+isMainReguliere main =
+    let
+        repartition =
+            repartitionMain main
+    in
+        -- List.all ((>=) 1) repartition &&
+        List.any ((==) repartition)
+            [ [ 4, 3, 3, 3 ]
+            , [ 4, 4, 3, 2 ]
+            , [ 5, 3, 3, 2 ]
+            ]
+
+
 sortCartes : List Carte -> List Carte
 sortCartes cartes =
     let
@@ -287,10 +306,15 @@ getFits main1 main2 =
         ]
 
 
+isFit : Main -> Main -> Bool
+isFit main1 main2 =
+    List.length (getFits main1 main2) > 0
+
+
 type alias Points =
     { honneur : Int
     , longueur : Int
-    , distribution : Int
+    , distribution : Maybe Int
     }
 
 
@@ -349,8 +373,8 @@ pointsDistributionCouleur cartes =
         Nothing
 
 
-pointsMain : Main -> Points
-pointsMain main =
+pointsMain : Main -> Maybe Main -> Points
+pointsMain main otherMain =
     { honneur =
         List.map pointsHonneurCarte (concatMain main) |> List.sum
     , longueur =
@@ -362,27 +386,36 @@ pointsMain main =
             |> List.map (Maybe.withDefault 0)
             |> List.sum
     , distribution =
-        [ pointsDistributionCouleur main.pique
-        , pointsDistributionCouleur main.coeur
-        , pointsDistributionCouleur main.carreau
-        , pointsDistributionCouleur main.trefle
-        ]
-            |> List.map (Maybe.withDefault 0)
-            |> List.sum
+        case otherMain of
+            Just otherMain ->
+                if isFit main otherMain then
+                    [ pointsDistributionCouleur main.pique
+                    , pointsDistributionCouleur main.coeur
+                    , pointsDistributionCouleur main.carreau
+                    , pointsDistributionCouleur main.trefle
+                    ]
+                        |> List.map (Maybe.withDefault 0)
+                        |> List.sum
+                        |> Just
+                else
+                    Nothing
+
+            Nothing ->
+                Nothing
     }
 
 
 showPoints : Points -> String
 showPoints { honneur, longueur, distribution } =
+    -- H et HL
+    -- H et HLD si fit
     [ toString honneur ++ "H"
-    , if longueur == 0 then
-        ""
-      else
-        toString longueur ++ "L"
-    , if distribution == 0 then
-        ""
-      else
-        toString distribution ++ "D"
+    , case distribution of
+        Just distribution ->
+            toString (honneur + longueur + distribution) ++ "HLD"
+
+        Nothing ->
+            toString (honneur + longueur) ++ "HL"
     ]
         |> String.join " "
 
@@ -395,6 +428,75 @@ showRepartition { carreau, coeur, pique, trefle } =
         |> List.reverse
         |> List.map toString
         |> String.join "-"
+
+
+
+-- ENCHERES
+
+
+type CouleurEnchere
+    = EncherePique
+    | EnchereCoeur
+    | EnchereCarreau
+    | EnchereTrefle
+    | SansAtout
+
+
+type Enchere
+    = Enchere ( Int, CouleurEnchere )
+    | Passe
+    | EnchereTodo
+
+
+nextEnchere : Main -> Maybe Main -> Enchere
+nextEnchere main otherMain =
+    let
+        points =
+            pointsMain main otherMain
+    in
+        if points.honneur >= 12 then
+            if List.length main.pique >= 5 then
+                Enchere ( 1, EncherePique )
+            else if List.length main.coeur >= 5 then
+                Enchere ( 1, EnchereCoeur )
+            else if points.honneur >= 15 && points.honneur <= 17 && isMainReguliere main then
+                Enchere ( 1, SansAtout )
+            else
+                EnchereTodo
+        else
+            EnchereTodo
+
+
+showEnchere : Enchere -> String
+showEnchere enchere =
+    case enchere of
+        Enchere ( niveau, couleur ) ->
+            toString niveau ++ showCouleurEnchere couleur
+
+        Passe ->
+            "Passe"
+
+        EnchereTodo ->
+            "TODO (pas encore programmé)"
+
+
+showCouleurEnchere : CouleurEnchere -> String
+showCouleurEnchere couleur =
+    case couleur of
+        EncherePique ->
+            "♠"
+
+        EnchereCoeur ->
+            "♥"
+
+        EnchereCarreau ->
+            "♦"
+
+        EnchereTrefle ->
+            "♣"
+
+        SansAtout ->
+            "SA"
 
 
 
@@ -475,6 +577,10 @@ update msg model =
             ( model, Random.generate SetDonne donneGenerator )
 
         SetDonne donne ->
+            -- if isMainReguliere donne.sud then
+            --     ( { model | donne = donne }, Cmd.none )
+            -- else
+            --     ( model, Random.generate SetDonne donneGenerator )
             ( { model | donne = donne }, Cmd.none )
 
 
@@ -502,6 +608,7 @@ view { donne } =
                 ]
             , li [] [ viewFits "Nord et Sud" (getFits donne.nord donne.sud) ]
             , li [] [ viewFits "Est et Ouest" (getFits donne.est donne.ouest) ]
+            , li [] [ text ("Prochaine enchère pour Sud : " ++ (showEnchere (nextEnchere donne.sud Nothing))) ]
             ]
         , button [ onClick GenerateDonne ] [ text "Générer" ]
         , hr [] []
@@ -515,11 +622,22 @@ viewDonne { nord, sud, est, ouest } =
         flexItem children =
             div [ style [ ( "flex", "1 33%" ) ] ] children
 
-        mainChildren main =
+        mainChildren main otherMain =
             [ viewMain main
             , ulWithoutBullets
-                [ li [] [ text (showPoints (pointsMain main)) ]
-                , li [] [ text (showRepartition main) ]
+                [ li [] [ text (showPoints (pointsMain main otherMain)) ]
+                , li []
+                    [ text
+                        (showRepartition main
+                            ++ " ("
+                            ++ (if isMainReguliere main then
+                                    "régulière"
+                                else
+                                    "non régulière"
+                               )
+                            ++ ")"
+                        )
+                    ]
                 ]
             ]
     in
@@ -530,13 +648,13 @@ viewDonne { nord, sud, est, ouest } =
                 ]
             ]
             [ flexItem [ text "" ]
-            , flexItem (mainChildren nord)
+            , flexItem (mainChildren nord (Just sud))
             , flexItem [ text "" ]
-            , flexItem (mainChildren ouest)
+            , flexItem (mainChildren ouest (Just est))
             , flexItem [ text "" ]
-            , flexItem (mainChildren est)
+            , flexItem (mainChildren est (Just ouest))
             , flexItem [ text "" ]
-            , flexItem (mainChildren sud)
+            , flexItem (mainChildren sud (Just nord))
             , flexItem [ text "" ]
             ]
 
@@ -652,7 +770,7 @@ ulWithoutBullets children =
 
 donne1 : Donne
 donne1 =
-    { nord =
+    { sud =
         mainFromCartes
             [ Carte As Pique
             , Carte Roi Pique
@@ -668,7 +786,7 @@ donne1 =
             , Carte V3 Carreau
             , Carte V2 Carreau
             ]
-    , sud =
+    , nord =
         mainFromCartes
             [ Carte Valet Pique
             , Carte V10 Pique
