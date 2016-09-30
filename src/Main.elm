@@ -733,8 +733,8 @@ update msg model =
 view : Model -> Html Msg
 view { donne, hideOtherHands } =
     div
-        []
-        [ h1 [] [ text "🂡 Elm Bridge Game" ]
+        [ style [ ( "margin", "1em" ) ] ]
+        [ h1 [] [ text "🂡 Jeu de Bridge" ]
         , viewDonne donne hideOtherHands
         , ul []
             [ li []
@@ -785,8 +785,13 @@ view { donne, hideOtherHands } =
                 , text "Autres mains cachées"
                 ]
             ]
-        , hr [] []
-        , a [ href "https://github.com/cbenz/elm-bridge-game" ] [ text "Source code" ]
+        , footer [ style [ ( "margin-top", "5em" ) ] ]
+            [ hr [] []
+            , p []
+                [ text "Logiciel libre programmé en langage Elm. "
+                , a [ href "https://github.com/cbenz/elm-bridge-game" ] [ text "Code source" ]
+                ]
+            ]
         ]
 
 
@@ -798,7 +803,7 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
 
         handChildren hand otherHand =
             [ viewHand hand
-            , ulWithoutBullets
+            , ulWithoutBullets [ style [ ( "margin-top", "0.5em" ) ] ]
                 [ li [] [ text (showPoints (pointsHand hand otherHand)) ]
                 , li []
                     [ text
@@ -828,6 +833,10 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
             [ style
                 [ ( "display", "flex" )
                 , ( "flex-wrap", "wrap" )
+                , ( "font-size", "large" )
+                , ( "padding", "1em" )
+                , ( "border", "1px solid" )
+                , ( "background-color", "rgb(76, 175, 80)" )
                 ]
             ]
             [ flexItem [ text "" ]
@@ -883,7 +892,7 @@ viewHand hand =
                 |> text
             ]
     in
-        ulWithoutBullets
+        ulWithoutBullets []
             [ li [] (viewHandCouleur Pique hand.pique)
             , li [] (viewHandCouleur Coeur hand.coeur)
             , li [] (viewHandCouleur Carreau hand.carreau)
@@ -962,15 +971,17 @@ viewCouleurCarte couleur =
         [ text (showCouleurCarte couleur) ]
 
 
-ulWithoutBullets : List (Html msg) -> Html msg
-ulWithoutBullets children =
+ulWithoutBullets : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+ulWithoutBullets attributes children =
     ul
-        [ style
+        ((style
             [ ( "list-style-type", "none" )
             , ( "margin", "0" )
             , ( "padding", "0" )
             ]
-        ]
+         )
+            :: attributes
+        )
         children
 
 
@@ -981,9 +992,7 @@ choices title nameAttribute tagger labelAndValueList initialCheckedIndex =
             [ ( "margin-right", "1em" ) ]
     in
         div []
-            ((text
-                (title ++ " : ")
-             )
+            ((text (title ++ " : "))
                 :: (List.indexedMap
                         (\index ( labelText, value ) ->
                             label [ style labelWithSpaceStyle ]
