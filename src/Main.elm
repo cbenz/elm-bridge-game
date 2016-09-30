@@ -75,32 +75,32 @@ cartes =
         couleurs
 
 
-type alias Main =
-    { pique : CouleurDansMain
-    , coeur : CouleurDansMain
-    , carreau : CouleurDansMain
-    , trefle : CouleurDansMain
+type alias Hand =
+    { pique : HandColor
+    , coeur : HandColor
+    , carreau : HandColor
+    , trefle : HandColor
     }
 
 
-type alias CouleurDansMain =
+type alias HandColor =
     List Carte
 
 
 type alias Donne =
-    { nord : Main
-    , sud : Main
-    , est : Main
-    , ouest : Main
+    { nord : Hand
+    , sud : Hand
+    , est : Hand
+    , ouest : Hand
     }
 
 
 emptyDonne : Donne
 emptyDonne =
-    { nord = emptyMain
-    , sud = emptyMain
-    , est = emptyMain
-    , ouest = emptyMain
+    { nord = emptyHand
+    , sud = emptyHand
+    , est = emptyHand
+    , ouest = emptyHand
     }
 
 
@@ -163,8 +163,8 @@ showCouleurCarte couleur =
             "♣"
 
 
-concatMain : Main -> List Carte
-concatMain main =
+concatHand : Hand -> List Carte
+concatHand main =
     List.concat [ main.pique, main.coeur, main.carreau, main.trefle ]
 
 
@@ -175,20 +175,20 @@ isDonneValid { nord, sud, est, ouest } =
             [ nord, sud, est, ouest ]
 
         validLength main =
-            List.length (concatMain main) == 13
+            List.length (concatHand main) == 13
 
-        inOneOfMains carte =
-            List.any (\main -> List.member carte (concatMain main)) mains
+        inOneOfHands carte =
+            List.any (\main -> List.member carte (concatHand main)) mains
     in
-        List.all validLength mains && List.all inOneOfMains cartes
+        List.all validLength mains && List.all inOneOfHands cartes
 
 
-emptyMain : Main
-emptyMain =
+emptyHand : Hand
+emptyHand =
     { pique = [], coeur = [], carreau = [], trefle = [] }
 
 
-mainFromCartes : List Carte -> Main
+mainFromCartes : List Carte -> Hand
 mainFromCartes cartes =
     List.foldl
         (\((Carte _ couleur) as carte) mainAccu ->
@@ -205,7 +205,7 @@ mainFromCartes cartes =
                 Trefle ->
                     { mainAccu | trefle = carte :: mainAccu.trefle }
         )
-        emptyMain
+        emptyHand
         cartes
         |> \{ pique, coeur, carreau, trefle } ->
             { pique = sortCartes pique
@@ -215,16 +215,16 @@ mainFromCartes cartes =
             }
 
 
-repartitionMain : Main -> List Int
-repartitionMain { pique, coeur, carreau, trefle } =
+handRepartition : Hand -> List Int
+handRepartition { pique, coeur, carreau, trefle } =
     List.map List.length [ pique, coeur, carreau, trefle ]
 
 
-isMainReguliere : Main -> Bool
-isMainReguliere main =
+isHandReguliere : Hand -> Bool
+isHandReguliere main =
     let
         repartition =
-            repartitionMain main
+            handRepartition main
     in
         -- List.all ((>=) 1) repartition &&
         List.any ((==) repartition)
@@ -286,7 +286,7 @@ type alias Fit =
     ( CouleurCarte, Int )
 
 
-getFits : Main -> Main -> List Fit
+getFits : Hand -> Hand -> List Fit
 getFits main1 main2 =
     List.filterMap
         (\( getter, couleur ) ->
@@ -306,7 +306,7 @@ getFits main1 main2 =
         ]
 
 
-isFit : Main -> Main -> Bool
+isFit : Hand -> Hand -> Bool
 isFit main1 main2 =
     List.length (getFits main1 main2) > 0
 
@@ -337,7 +337,7 @@ pointsHonneurCarte (Carte valeur _) =
             0
 
 
-pointsLongueurCouleur : CouleurDansMain -> Maybe Int
+pointsLongueurCouleur : HandColor -> Maybe Int
 pointsLongueurCouleur cartes =
     let
         isBelleCouleur cartes =
@@ -358,7 +358,7 @@ pointsLongueurCouleur cartes =
             Nothing
 
 
-pointsDistributionCouleur : CouleurDansMain -> Maybe Int
+pointsDistributionCouleur : HandColor -> Maybe Int
 pointsDistributionCouleur cartes =
     if List.length cartes == 0 then
         -- chicane
@@ -373,10 +373,10 @@ pointsDistributionCouleur cartes =
         Nothing
 
 
-pointsMain : Main -> Maybe Main -> Points
-pointsMain main otherMain =
+pointsHand : Hand -> Maybe Hand -> Points
+pointsHand main otherHand =
     { honneur =
-        List.map pointsHonneurCarte (concatMain main) |> List.sum
+        List.map pointsHonneurCarte (concatHand main) |> List.sum
     , longueur =
         [ pointsLongueurCouleur main.pique
         , pointsLongueurCouleur main.coeur
@@ -386,9 +386,9 @@ pointsMain main otherMain =
             |> List.map (Maybe.withDefault 0)
             |> List.sum
     , distribution =
-        case otherMain of
-            Just otherMain ->
-                if isFit main otherMain then
+        case otherHand of
+            Just otherHand ->
+                if isFit main otherHand then
                     [ pointsDistributionCouleur main.pique
                     , pointsDistributionCouleur main.coeur
                     , pointsDistributionCouleur main.carreau
@@ -446,7 +446,7 @@ showPoints { honneur, longueur, distribution } =
             |> String.join " "
 
 
-showRepartition : Main -> String
+showRepartition : Hand -> String
 showRepartition { carreau, coeur, pique, trefle } =
     [ carreau, coeur, pique, trefle ]
         |> List.map List.length
@@ -474,18 +474,18 @@ type Enchere
     | EnchereTodo
 
 
-nextEnchere : Main -> Maybe Main -> Enchere
-nextEnchere main otherMain =
+nextEnchere : Hand -> Maybe Hand -> Enchere
+nextEnchere main otherHand =
     let
         points =
-            pointsMain main otherMain
+            pointsHand main otherHand
     in
         if points.honneur >= 12 then
             if List.length main.pique >= 5 then
                 Enchere ( 1, EncherePique )
             else if List.length main.coeur >= 5 then
                 Enchere ( 1, EnchereCoeur )
-            else if points.honneur >= 15 && points.honneur <= 17 && isMainReguliere main then
+            else if points.honneur >= 15 && points.honneur <= 17 && isHandReguliere main then
                 Enchere ( 1, SansAtout )
             else
                 EnchereTodo
@@ -572,7 +572,7 @@ donneFromCartes cartes =
 
 type alias Model =
     { donne : Donne
-    , hideOtherMains : Bool
+    , hideOtherHands : Bool
     }
 
 
@@ -583,7 +583,7 @@ type alias Model =
 init : ( Model, Cmd msg )
 init =
     ( { donne = donne1
-      , hideOtherMains = False
+      , hideOtherHands = False
       }
     , Cmd.none
     )
@@ -610,14 +610,14 @@ update msg model =
             ( model, Random.generate SetDonne donneGenerator )
 
         SetDonne donne ->
-            -- if isMainReguliere donne.sud then
+            -- if isHandReguliere donne.sud then
             --     ( { model | donne = donne }, Cmd.none )
             -- else
             --     ( model, Random.generate SetDonne donneGenerator )
             ( { model | donne = donne }, Cmd.none )
 
-        HideOtherHands hideOtherMains ->
-            ( { model | hideOtherMains = hideOtherMains }, Cmd.none )
+        HideOtherHands hideOtherHands ->
+            ( { model | hideOtherHands = hideOtherHands }, Cmd.none )
 
 
 
@@ -625,11 +625,11 @@ update msg model =
 
 
 view : Model -> Html Msg
-view { donne, hideOtherMains } =
+view { donne, hideOtherHands } =
     div
         []
         [ h1 [] [ text "🂡 Elm Bridge Game" ]
-        , viewDonne donne hideOtherMains
+        , viewDonne donne hideOtherHands
         , ul []
             [ li []
                 [ text
@@ -650,7 +650,7 @@ view { donne, hideOtherMains } =
             [ button [ onClick GenerateDonne ] [ text "Générer" ]
             , br [] []
             , label []
-                [ input [ type' "checkbox", onCheck HideOtherHands, checked hideOtherMains ] []
+                [ input [ type' "checkbox", onCheck HideOtherHands, checked hideOtherHands ] []
                 , text "Autres mains cachées"
                 ]
             ]
@@ -660,20 +660,20 @@ view { donne, hideOtherMains } =
 
 
 viewDonne : Donne -> Bool -> Html msg
-viewDonne { nord, sud, est, ouest } hideOtherMains =
+viewDonne { nord, sud, est, ouest } hideOtherHands =
     let
         flexItem children =
             div [ style [ ( "flex", "1 33%" ) ] ] children
 
-        mainChildren main otherMain =
-            [ viewMain main
+        mainChildren main otherHand =
+            [ viewHand main
             , ulWithoutBullets
-                [ li [] [ text (showPoints (pointsMain main otherMain)) ]
+                [ li [] [ text (showPoints (pointsHand main otherHand)) ]
                 , li []
                     [ text
                         (showRepartition main
                             ++ " ("
-                            ++ (if isMainReguliere main then
+                            ++ (if isHandReguliere main then
                                     "régulière"
                                 else
                                     "non régulière"
@@ -697,21 +697,21 @@ viewDonne { nord, sud, est, ouest } hideOtherMains =
             ]
             [ flexItem [ text "" ]
             , flexItem
-                (if hideOtherMains then
+                (if hideOtherHands then
                     [ hiddenHandDiv ]
                  else
                     mainChildren nord (Just sud)
                 )
             , flexItem [ text "" ]
             , flexItem
-                (if hideOtherMains then
+                (if hideOtherHands then
                     [ hiddenHandDiv ]
                  else
                     mainChildren ouest (Just est)
                 )
             , flexItem [ text "" ]
             , flexItem
-                (if hideOtherMains then
+                (if hideOtherHands then
                     [ hiddenHandDiv ]
                  else
                     mainChildren est (Just ouest)
@@ -719,7 +719,7 @@ viewDonne { nord, sud, est, ouest } hideOtherMains =
             , flexItem [ text "" ]
             , flexItem
                 (mainChildren sud
-                    (if hideOtherMains then
+                    (if hideOtherHands then
                         Nothing
                      else
                         Just nord
@@ -729,10 +729,10 @@ viewDonne { nord, sud, est, ouest } hideOtherMains =
             ]
 
 
-viewMain : Main -> Html msg
-viewMain main =
+viewHand : Hand -> Html msg
+viewHand main =
     let
-        viewMainCouleur couleur cartes =
+        viewHandCouleur couleur cartes =
             [ span
                 [ style (couleurCarteStyle couleur) ]
                 [ text (showCouleurCarte couleur) ]
@@ -749,10 +749,10 @@ viewMain main =
             ]
     in
         ulWithoutBullets
-            [ li [] (viewMainCouleur Pique main.pique)
-            , li [] (viewMainCouleur Coeur main.coeur)
-            , li [] (viewMainCouleur Carreau main.carreau)
-            , li [] (viewMainCouleur Trefle main.trefle)
+            [ li [] (viewHandCouleur Pique main.pique)
+            , li [] (viewHandCouleur Coeur main.coeur)
+            , li [] (viewHandCouleur Carreau main.carreau)
+            , li [] (viewHandCouleur Trefle main.trefle)
             ]
 
 
