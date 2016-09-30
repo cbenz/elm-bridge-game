@@ -493,17 +493,20 @@ nextEnchere main otherHand =
             EnchereTodo
 
 
-showEnchere : Enchere -> String
-showEnchere enchere =
+viewEnchere : Enchere -> Html msg
+viewEnchere enchere =
     case enchere of
         Enchere ( niveau, couleur ) ->
-            toString niveau ++ showCouleurEnchere couleur
+            span []
+                [ text (toString niveau)
+                , viewCouleurEnchere couleur
+                ]
 
         Passe ->
-            "Passe"
+            text "Passe"
 
         EnchereTodo ->
-            "TODO (pas encore programmé)"
+            text "TODO (pas encore programmé)"
 
 
 showCouleurEnchere : CouleurEnchere -> String
@@ -523,6 +526,30 @@ showCouleurEnchere couleur =
 
         SansAtout ->
             "SA"
+
+
+couleurEnchereStyle : CouleurEnchere -> List ( String, String )
+couleurEnchereStyle couleur =
+    let
+        red =
+            [ ( "color", "red" ) ]
+    in
+        case couleur of
+            EnchereCoeur ->
+                red
+
+            EnchereCarreau ->
+                red
+
+            _ ->
+                []
+
+
+viewCouleurEnchere : CouleurEnchere -> Html msg
+viewCouleurEnchere couleur =
+    span
+        [ style (couleurEnchereStyle couleur) ]
+        [ text (showCouleurEnchere couleur) ]
 
 
 
@@ -669,7 +696,10 @@ view { donne, hideOtherHands } =
                 ]
             , li [] [ viewFits "Nord et Sud" (getFits donne.nord donne.sud) ]
             , li [] [ viewFits "Est et Ouest" (getFits donne.est donne.ouest) ]
-            , li [] [ text ("Prochaine enchère pour Sud : " ++ (showEnchere (nextEnchere donne.sud Nothing))) ]
+            , li []
+                [ text "Prochaine enchère pour Sud : "
+                , viewEnchere (nextEnchere donne.sud Nothing)
+                ]
             ]
         , fieldset []
             [ fieldset []
@@ -805,9 +835,7 @@ viewFits msg fit =
                                             [ text (toString fitLength)
                                             , sup [] [ text "ème" ]
                                             , text " à "
-                                            , span
-                                                [ style (couleurCarteStyle couleur) ]
-                                                [ text (showCouleurCarte couleur) ]
+                                            , viewCouleurCarte couleur
                                             ]
                                     )
                                     couleurs
@@ -851,6 +879,13 @@ couleurCarteStyle couleur =
 
             _ ->
                 []
+
+
+viewCouleurCarte : CouleurCarte -> Html msg
+viewCouleurCarte couleur =
+    span
+        [ style (couleurCarteStyle couleur) ]
+        [ text (showCouleurCarte couleur) ]
 
 
 ulWithoutBullets : List (Html msg) -> Html msg
