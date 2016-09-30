@@ -164,23 +164,23 @@ showCouleurCarte couleur =
 
 
 concatHand : Hand -> List Carte
-concatHand main =
-    List.concat [ main.pique, main.coeur, main.carreau, main.trefle ]
+concatHand hand =
+    List.concat [ hand.pique, hand.coeur, hand.carreau, hand.trefle ]
 
 
 isDonneValid : Donne -> Bool
 isDonneValid { nord, sud, est, ouest } =
     let
-        mains =
+        hands =
             [ nord, sud, est, ouest ]
 
-        validLength main =
-            List.length (concatHand main) == 13
+        validLength hand =
+            List.length (concatHand hand) == 13
 
         inOneOfHands carte =
-            List.any (\main -> List.member carte (concatHand main)) mains
+            List.any (\hand -> List.member carte (concatHand hand)) hands
     in
-        List.all validLength mains && List.all inOneOfHands cartes
+        List.all validLength hands && List.all inOneOfHands cartes
 
 
 emptyHand : Hand
@@ -188,22 +188,22 @@ emptyHand =
     { pique = [], coeur = [], carreau = [], trefle = [] }
 
 
-mainFromCartes : List Carte -> Hand
-mainFromCartes cartes =
+handFromCartes : List Carte -> Hand
+handFromCartes cartes =
     List.foldl
-        (\((Carte _ couleur) as carte) mainAccu ->
+        (\((Carte _ couleur) as carte) handAccu ->
             case couleur of
                 Pique ->
-                    { mainAccu | pique = carte :: mainAccu.pique }
+                    { handAccu | pique = carte :: handAccu.pique }
 
                 Coeur ->
-                    { mainAccu | coeur = carte :: mainAccu.coeur }
+                    { handAccu | coeur = carte :: handAccu.coeur }
 
                 Carreau ->
-                    { mainAccu | carreau = carte :: mainAccu.carreau }
+                    { handAccu | carreau = carte :: handAccu.carreau }
 
                 Trefle ->
-                    { mainAccu | trefle = carte :: mainAccu.trefle }
+                    { handAccu | trefle = carte :: handAccu.trefle }
         )
         emptyHand
         cartes
@@ -220,18 +220,70 @@ handRepartition { pique, coeur, carreau, trefle } =
     List.map List.length [ pique, coeur, carreau, trefle ]
 
 
-isHandReguliere : Hand -> Bool
-isHandReguliere main =
+type HandType
+    = Reguliere
+    | Unicolore
+    | Bicolore
+    | Quelconque
+
+
+handType : Hand -> HandType
+handType hand =
     let
         repartition =
-            handRepartition main
+            handRepartition hand
     in
-        -- List.all ((>=) 1) repartition &&
-        List.any ((==) repartition)
-            [ [ 4, 3, 3, 3 ]
-            , [ 4, 4, 3, 2 ]
-            , [ 5, 3, 3, 2 ]
-            ]
+        if
+            -- List.all ((>=) 1) repartition &&
+            List.any ((==) repartition)
+                [ [ 4, 3, 3, 3 ]
+                , [ 4, 4, 3, 2 ]
+                , [ 5, 3, 3, 2 ]
+                ]
+        then
+            Reguliere
+        else if
+            repartition
+                |> List.filterMap
+                    (\x ->
+                        if x >= 4 then
+                            Just x
+                        else
+                            Nothing
+                    )
+                |> \xs -> List.sum xs >= 9
+        then
+            Bicolore
+        else if
+            repartition
+                |> List.filterMap
+                    (\x ->
+                        if x >= 6 then
+                            Just True
+                        else
+                            Nothing
+                    )
+                |> \xs -> List.length xs == 1
+        then
+            Unicolore
+        else
+            Quelconque
+
+
+showHandType : HandType -> String
+showHandType handType =
+    case handType of
+        Reguliere ->
+            "régulière"
+
+        Unicolore ->
+            "unicolore"
+
+        Bicolore ->
+            "bicolore"
+
+        Quelconque ->
+            "quelconque"
 
 
 sortCartes : List Carte -> List Carte
@@ -287,12 +339,12 @@ type alias Fit =
 
 
 getFits : Hand -> Hand -> List Fit
-getFits main1 main2 =
+getFits hand1 hand2 =
     List.filterMap
         (\( getter, couleur ) ->
             let
                 fitLength =
-                    List.length (List.concat [ getter main1, getter main2 ])
+                    List.length (List.concat [ getter hand1, getter hand2 ])
             in
                 if fitLength >= 8 then
                     Just ( couleur, fitLength )
@@ -307,8 +359,8 @@ getFits main1 main2 =
 
 
 isFit : Hand -> Hand -> Bool
-isFit main1 main2 =
-    List.length (getFits main1 main2) > 0
+isFit hand1 hand2 =
+    List.length (getFits hand1 hand2) > 0
 
 
 type alias Points =
@@ -374,25 +426,25 @@ pointsDistributionCouleur cartes =
 
 
 pointsHand : Hand -> Maybe Hand -> Points
-pointsHand main otherHand =
+pointsHand hand otherHand =
     { honneur =
-        List.map pointsHonneurCarte (concatHand main) |> List.sum
+        List.map pointsHonneurCarte (concatHand hand) |> List.sum
     , longueur =
-        [ pointsLongueurCouleur main.pique
-        , pointsLongueurCouleur main.coeur
-        , pointsLongueurCouleur main.carreau
-        , pointsLongueurCouleur main.trefle
+        [ pointsLongueurCouleur hand.pique
+        , pointsLongueurCouleur hand.coeur
+        , pointsLongueurCouleur hand.carreau
+        , pointsLongueurCouleur hand.trefle
         ]
             |> List.map (Maybe.withDefault 0)
             |> List.sum
     , distribution =
         case otherHand of
             Just otherHand ->
-                if isFit main otherHand then
-                    [ pointsDistributionCouleur main.pique
-                    , pointsDistributionCouleur main.coeur
-                    , pointsDistributionCouleur main.carreau
-                    , pointsDistributionCouleur main.trefle
+                if isFit hand otherHand then
+                    [ pointsDistributionCouleur hand.pique
+                    , pointsDistributionCouleur hand.coeur
+                    , pointsDistributionCouleur hand.carreau
+                    , pointsDistributionCouleur hand.trefle
                     ]
                         |> List.map (Maybe.withDefault 0)
                         |> List.sum
@@ -475,17 +527,17 @@ type Enchere
 
 
 nextEnchere : Hand -> Maybe Hand -> Enchere
-nextEnchere main otherHand =
+nextEnchere hand otherHand =
     let
         points =
-            pointsHand main otherHand
+            pointsHand hand otherHand
     in
         if points.honneur >= 12 then
-            if List.length main.pique >= 5 then
+            if List.length hand.pique >= 5 then
                 Enchere ( 1, EncherePique )
-            else if List.length main.coeur >= 5 then
+            else if List.length hand.coeur >= 5 then
                 Enchere ( 1, EnchereCoeur )
-            else if points.honneur >= 15 && points.honneur <= 17 && isHandReguliere main then
+            else if points.honneur >= 15 && points.honneur <= 17 && handType hand == Reguliere then
                 Enchere ( 1, SansAtout )
             else
                 EnchereTodo
@@ -553,6 +605,7 @@ viewCouleurEnchere couleur =
 
 
 
+-- HAND TYPES
 -- GENERATE
 
 
@@ -586,10 +639,10 @@ donneFromCartes cartes =
         { nord = [], sud = [], est = [], ouest = [] }
         (List.indexedMap (,) cartes)
         |> \{ nord, sud, est, ouest } ->
-            { nord = mainFromCartes nord
-            , sud = mainFromCartes sud
-            , est = mainFromCartes est
-            , ouest = mainFromCartes ouest
+            { nord = handFromCartes nord
+            , sud = handFromCartes sud
+            , est = handFromCartes est
+            , ouest = handFromCartes ouest
             }
 
 
@@ -600,7 +653,7 @@ donneFromCartes cartes =
 type alias Model =
     { donne : Donne
     , hideOtherHands : Bool
-    , generateHandReguliere : Maybe Bool
+    , generateHandType : HandType
     , generateFittedWithNord : Maybe Bool
     }
 
@@ -613,7 +666,7 @@ init : ( Model, Cmd msg )
 init =
     ( { donne = donne1
       , hideOtherHands = False
-      , generateHandReguliere = Nothing
+      , generateHandType = Quelconque
       , generateFittedWithNord = Nothing
       }
     , Cmd.none
@@ -628,7 +681,7 @@ type Msg
     = GenerateDonne
     | SetDonneFromGenerator Donne
     | HideOtherHands Bool
-    | GenerateHandReguliere (Maybe Bool)
+    | GenerateHandType HandType
     | GenerateFittedWithNord (Maybe Bool)
 
 
@@ -643,30 +696,31 @@ update msg model =
             ( model, Random.generate SetDonneFromGenerator donneGenerator )
 
         SetDonneFromGenerator donne ->
-            let
-                isSatisfied ( constraint, predicate ) =
-                    case constraint of
-                        Just expectedValue ->
-                            predicate donne.sud == expectedValue
+            if
+                (case model.generateHandType of
+                    Quelconque ->
+                        True
 
-                        Nothing ->
-                            True
+                    other ->
+                        handType donne.sud == other
+                )
+                    && (case model.generateFittedWithNord of
+                            Just expectedValue ->
+                                isFit donne.sud donne.nord == expectedValue
 
-                constraintsAndPredicates =
-                    [ ( model.generateHandReguliere, isHandReguliere )
-                    , ( model.generateFittedWithNord, isFit donne.nord )
-                    ]
-            in
-                if List.all isSatisfied constraintsAndPredicates then
-                    ( { model | donne = donne }, Cmd.none )
-                else
-                    ( model, Random.generate SetDonneFromGenerator donneGenerator )
+                            Nothing ->
+                                True
+                       )
+            then
+                ( { model | donne = donne }, Cmd.none )
+            else
+                ( model, Random.generate SetDonneFromGenerator donneGenerator )
 
         HideOtherHands hideOtherHands ->
             ( { model | hideOtherHands = hideOtherHands }, Cmd.none )
 
-        GenerateHandReguliere generateHandReguliere ->
-            ( { model | generateHandReguliere = generateHandReguliere }, Cmd.none )
+        GenerateHandType generateHandType ->
+            ( { model | generateHandType = generateHandType }, Cmd.none )
 
         GenerateFittedWithNord generateFittedWithNord ->
             ( { model | generateFittedWithNord = generateFittedWithNord }, Cmd.none )
@@ -704,8 +758,24 @@ view { donne, hideOtherHands } =
         , fieldset []
             [ fieldset []
                 [ legend [] [ text "Contraintes pour Sud" ]
-                , yesNoPerhaps "Main régulière" "handReguliere" GenerateHandReguliere
-                , yesNoPerhaps "Fitté avec Nord" "fitWithNord" GenerateFittedWithNord
+                , choices
+                    "Main"
+                    "hand"
+                    GenerateHandType
+                    (List.map
+                        (\x -> ( showHandType x, x ))
+                        [ Reguliere, Unicolore, Bicolore, Quelconque ]
+                    )
+                    3
+                , choices
+                    "Fitté avec Nord"
+                    "fitWithNord"
+                    GenerateFittedWithNord
+                    [ ( "oui", Just True )
+                    , ( "non", Just False )
+                    , ( "peu importe", Nothing )
+                    ]
+                    2
                 , br [] []
                 , button [ onClick GenerateDonne ] [ text "Générer" ]
                 ]
@@ -726,20 +796,24 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
         flexItem children =
             div [ style [ ( "flex", "1 33%" ) ] ] children
 
-        mainChildren main otherHand =
-            [ viewHand main
+        handChildren hand otherHand =
+            [ viewHand hand
             , ulWithoutBullets
-                [ li [] [ text (showPoints (pointsHand main otherHand)) ]
+                [ li [] [ text (showPoints (pointsHand hand otherHand)) ]
                 , li []
                     [ text
-                        (showRepartition main
-                            ++ " ("
-                            ++ (if isHandReguliere main then
-                                    "régulière"
-                                else
-                                    "non régulière"
-                               )
-                            ++ ")"
+                        (let
+                            handType' =
+                                handType hand
+                         in
+                            showRepartition hand
+                                ++ if handType' == Quelconque then
+                                    ""
+                                   else
+                                    (" ("
+                                        ++ (showHandType handType')
+                                        ++ ")"
+                                    )
                         )
                     ]
                 ]
@@ -761,25 +835,25 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
                 (if hideOtherHands then
                     [ hiddenHandDiv ]
                  else
-                    mainChildren nord (Just sud)
+                    handChildren nord (Just sud)
                 )
             , flexItem [ text "" ]
             , flexItem
                 (if hideOtherHands then
                     [ hiddenHandDiv ]
                  else
-                    mainChildren ouest (Just est)
+                    handChildren ouest (Just est)
                 )
             , flexItem [ text "" ]
             , flexItem
                 (if hideOtherHands then
                     [ hiddenHandDiv ]
                  else
-                    mainChildren est (Just ouest)
+                    handChildren est (Just ouest)
                 )
             , flexItem [ text "" ]
             , flexItem
-                (mainChildren sud
+                (handChildren sud
                     (if hideOtherHands then
                         Nothing
                      else
@@ -791,7 +865,7 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
 
 
 viewHand : Hand -> Html msg
-viewHand main =
+viewHand hand =
     let
         viewHandCouleur couleur cartes =
             [ span
@@ -810,10 +884,10 @@ viewHand main =
             ]
     in
         ulWithoutBullets
-            [ li [] (viewHandCouleur Pique main.pique)
-            , li [] (viewHandCouleur Coeur main.coeur)
-            , li [] (viewHandCouleur Carreau main.carreau)
-            , li [] (viewHandCouleur Trefle main.trefle)
+            [ li [] (viewHandCouleur Pique hand.pique)
+            , li [] (viewHandCouleur Coeur hand.coeur)
+            , li [] (viewHandCouleur Carreau hand.carreau)
+            , li [] (viewHandCouleur Trefle hand.trefle)
             ]
 
 
@@ -900,43 +974,32 @@ ulWithoutBullets children =
         children
 
 
-yesNoPerhaps : String -> String -> (Maybe Bool -> msg) -> Html msg
-yesNoPerhaps title nameAttribute tagger =
+choices : String -> String -> (a -> msg) -> List ( String, a ) -> Int -> Html msg
+choices title nameAttribute tagger labelAndValueList initialCheckedIndex =
     let
         labelWithSpaceStyle =
             [ ( "margin-right", "1em" ) ]
     in
         div []
-            [ text (title ++ " : ")
-            , label [ style labelWithSpaceStyle ]
-                [ input
-                    [ type' "radio"
-                    , name nameAttribute
-                    , onCheck (always (tagger (Just True)))
-                    ]
-                    []
-                , text "Oui"
-                ]
-            , label [ style labelWithSpaceStyle ]
-                [ input
-                    [ type' "radio"
-                    , name nameAttribute
-                    , onCheck (always (tagger (Just False)))
-                    ]
-                    []
-                , text "Non"
-                ]
-            , label []
-                [ input
-                    [ type' "radio"
-                    , name nameAttribute
-                    , onCheck (always (tagger Nothing))
-                    , checked True
-                    ]
-                    []
-                , text "Peut-être"
-                ]
-            ]
+            ((text
+                (title ++ " : ")
+             )
+                :: (List.indexedMap
+                        (\index ( labelText, value ) ->
+                            label [ style labelWithSpaceStyle ]
+                                [ input
+                                    [ type' "radio"
+                                    , name nameAttribute
+                                    , onCheck (always (tagger value))
+                                    , checked (index == initialCheckedIndex)
+                                    ]
+                                    []
+                                , text labelText
+                                ]
+                        )
+                        labelAndValueList
+                   )
+            )
 
 
 
@@ -946,7 +1009,7 @@ yesNoPerhaps title nameAttribute tagger =
 donne1 : Donne
 donne1 =
     { sud =
-        mainFromCartes
+        handFromCartes
             [ Carte As Pique
             , Carte Roi Pique
             , Carte Dame Pique
@@ -962,7 +1025,7 @@ donne1 =
             , Carte V2 Carreau
             ]
     , nord =
-        mainFromCartes
+        handFromCartes
             [ Carte Valet Pique
             , Carte V10 Pique
             , Carte V9 Pique
@@ -978,7 +1041,7 @@ donne1 =
             , Carte V5 Carreau
             ]
     , est =
-        mainFromCartes
+        handFromCartes
             [ Carte V7 Pique
             , Carte V6 Pique
             , Carte As Coeur
@@ -994,7 +1057,7 @@ donne1 =
             , Carte V8 Carreau
             ]
     , ouest =
-        mainFromCartes
+        handFromCartes
             [ Carte V4 Pique
             , Carte V3 Pique
             , Carte V2 Pique
