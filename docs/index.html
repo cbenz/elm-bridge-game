@@ -9138,21 +9138,22 @@ var _cbenz$elm_bridge_game$Main$choices = F5(
 						}),
 					labelAndValueList)));
 	});
-var _cbenz$elm_bridge_game$Main$ulWithoutBullets = function (children) {
-	return A2(
-		_elm_lang$html$Html$ul,
-		_elm_lang$core$Native_List.fromArray(
-			[
+var _cbenz$elm_bridge_game$Main$ulWithoutBullets = F2(
+	function (attributes, children) {
+		return A2(
+			_elm_lang$html$Html$ul,
+			A2(
+				_elm_lang$core$List_ops['::'],
 				_elm_lang$html$Html_Attributes$style(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						{ctor: '_Tuple2', _0: 'list-style-type', _1: 'none'},
-						{ctor: '_Tuple2', _0: 'margin', _1: '0'},
-						{ctor: '_Tuple2', _0: 'padding', _1: '0'}
-					]))
-			]),
-		children);
-};
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'list-style-type', _1: 'none'},
+							{ctor: '_Tuple2', _0: 'margin', _1: '0'},
+							{ctor: '_Tuple2', _0: 'padding', _1: '0'}
+						])),
+				attributes),
+			children);
+	});
 var _cbenz$elm_bridge_game$Main$couleurCarteStyle = function (couleur) {
 	var red = _elm_lang$core$Native_List.fromArray(
 		[
@@ -9844,7 +9845,10 @@ var _cbenz$elm_bridge_game$Main$viewHand = function (hand) {
 							cartes)))
 				]);
 		});
-	return _cbenz$elm_bridge_game$Main$ulWithoutBullets(
+	return A2(
+		_cbenz$elm_bridge_game$Main$ulWithoutBullets,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
@@ -10056,7 +10060,16 @@ var _cbenz$elm_bridge_game$Main$viewDonne = F2(
 				return _elm_lang$core$Native_List.fromArray(
 					[
 						_cbenz$elm_bridge_game$Main$viewHand(hand),
-						_cbenz$elm_bridge_game$Main$ulWithoutBullets(
+						A2(
+						_cbenz$elm_bridge_game$Main$ulWithoutBullets,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$style(
+								_elm_lang$core$Native_List.fromArray(
+									[
+										{ctor: '_Tuple2', _0: 'margin-top', _1: '0.5em'}
+									]))
+							]),
 						_elm_lang$core$Native_List.fromArray(
 							[
 								A2(
@@ -10114,7 +10127,11 @@ var _cbenz$elm_bridge_game$Main$viewDonne = F2(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							{ctor: '_Tuple2', _0: 'display', _1: 'flex'},
-							{ctor: '_Tuple2', _0: 'flex-wrap', _1: 'wrap'}
+							{ctor: '_Tuple2', _0: 'flex-wrap', _1: 'wrap'},
+							{ctor: '_Tuple2', _0: 'font-size', _1: 'large'},
+							{ctor: '_Tuple2', _0: 'padding', _1: '1em'},
+							{ctor: '_Tuple2', _0: 'border', _1: '1px solid'},
+							{ctor: '_Tuple2', _0: 'background-color', _1: 'rgb(76, 175, 80)'}
 						]))
 				]),
 			_elm_lang$core$Native_List.fromArray(
@@ -10280,7 +10297,13 @@ var _cbenz$elm_bridge_game$Main$view = function (_p61) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
-			[]),
+			[
+				_elm_lang$html$Html_Attributes$style(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{ctor: '_Tuple2', _0: 'margin', _1: '1em'}
+					]))
+			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
@@ -10289,7 +10312,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p61) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text('🂡 Elm Bridge Game')
+						_elm_lang$html$Html$text('🂡 Jeu de Bridge')
 					])),
 				A2(_cbenz$elm_bridge_game$Main$viewDonne, _p63, _p64),
 				A2(
@@ -10446,20 +10469,41 @@ var _cbenz$elm_bridge_game$Main$view = function (_p61) {
 							]))
 					])),
 				A2(
-				_elm_lang$html$Html$hr,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[])),
-				A2(
-				_elm_lang$html$Html$a,
+				_elm_lang$html$Html$footer,
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html_Attributes$href('https://github.com/cbenz/elm-bridge-game')
+						_elm_lang$html$Html_Attributes$style(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'margin-top', _1: '5em'}
+							]))
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text('Source code')
+						A2(
+						_elm_lang$html$Html$hr,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[])),
+						A2(
+						_elm_lang$html$Html$p,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('Logiciel libre programmé en langage Elm. '),
+								A2(
+								_elm_lang$html$Html$a,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$href('https://github.com/cbenz/elm-bridge-game')
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text('Code source')
+									]))
+							]))
 					]))
 			]));
 };
