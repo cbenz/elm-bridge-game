@@ -573,6 +573,8 @@ donneFromCartes cartes =
 type alias Model =
     { donne : Donne
     , hideOtherHands : Bool
+    , generateHandReguliere : Maybe Bool
+    , generateFittedWithNord : Maybe Bool
     }
 
 
@@ -584,6 +586,8 @@ init : ( Model, Cmd msg )
 init =
     ( { donne = donne1
       , hideOtherHands = False
+      , generateHandReguliere = Nothing
+      , generateFittedWithNord = Nothing
       }
     , Cmd.none
     )
@@ -595,8 +599,10 @@ init =
 
 type Msg
     = GenerateDonne
-    | SetDonne Donne
+    | SetDonneFromGenerator Donne
     | HideOtherHands Bool
+    | GenerateHandReguliere (Maybe Bool)
+    | GenerateFittedWithNord (Maybe Bool)
 
 
 
@@ -607,17 +613,36 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GenerateDonne ->
-            ( model, Random.generate SetDonne donneGenerator )
+            ( model, Random.generate SetDonneFromGenerator donneGenerator )
 
-        SetDonne donne ->
-            -- if isHandReguliere donne.sud then
-            --     ( { model | donne = donne }, Cmd.none )
-            -- else
-            --     ( model, Random.generate SetDonne donneGenerator )
-            ( { model | donne = donne }, Cmd.none )
+        SetDonneFromGenerator donne ->
+            let
+                isSatisfied ( constraint, predicate ) =
+                    case constraint of
+                        Just expectedValue ->
+                            predicate donne.sud == expectedValue
+
+                        Nothing ->
+                            True
+
+                constraintsAndPredicates =
+                    [ ( model.generateHandReguliere, isHandReguliere )
+                    , ( model.generateFittedWithNord, isFit donne.nord )
+                    ]
+            in
+                if List.all isSatisfied constraintsAndPredicates then
+                    ( { model | donne = donne }, Cmd.none )
+                else
+                    ( model, Random.generate SetDonneFromGenerator donneGenerator )
 
         HideOtherHands hideOtherHands ->
             ( { model | hideOtherHands = hideOtherHands }, Cmd.none )
+
+        GenerateHandReguliere generateHandReguliere ->
+            ( { model | generateHandReguliere = generateHandReguliere }, Cmd.none )
+
+        GenerateFittedWithNord generateFittedWithNord ->
+            ( { model | generateFittedWithNord = generateFittedWithNord }, Cmd.none )
 
 
 
@@ -647,7 +672,13 @@ view { donne, hideOtherHands } =
             , li [] [ text ("Prochaine enchère pour Sud : " ++ (showEnchere (nextEnchere donne.sud Nothing))) ]
             ]
         , fieldset []
-            [ button [ onClick GenerateDonne ] [ text "Générer" ]
+            [ fieldset []
+                [ legend [] [ text "Contraintes pour Sud" ]
+                , yesNoPerhaps "Main régulière" "handReguliere" GenerateHandReguliere
+                , yesNoPerhaps "Fitté avec Nord" "fitWithNord" GenerateFittedWithNord
+                , br [] []
+                , button [ onClick GenerateDonne ] [ text "Générer" ]
+                ]
             , br [] []
             , label []
                 [ input [ type' "checkbox", onCheck HideOtherHands, checked hideOtherHands ] []
@@ -832,6 +863,45 @@ ulWithoutBullets children =
             ]
         ]
         children
+
+
+yesNoPerhaps : String -> String -> (Maybe Bool -> msg) -> Html msg
+yesNoPerhaps title nameAttribute tagger =
+    let
+        labelWithSpaceStyle =
+            [ ( "margin-right", "1em" ) ]
+    in
+        div []
+            [ text (title ++ " : ")
+            , label [ style labelWithSpaceStyle ]
+                [ input
+                    [ type' "radio"
+                    , name nameAttribute
+                    , onCheck (always (tagger (Just True)))
+                    ]
+                    []
+                , text "Oui"
+                ]
+            , label [ style labelWithSpaceStyle ]
+                [ input
+                    [ type' "radio"
+                    , name nameAttribute
+                    , onCheck (always (tagger (Just False)))
+                    ]
+                    []
+                , text "Non"
+                ]
+            , label []
+                [ input
+                    [ type' "radio"
+                    , name nameAttribute
+                    , onCheck (always (tagger Nothing))
+                    , checked True
+                    ]
+                    []
+                , text "Peut-être"
+                ]
+            ]
 
 
 
