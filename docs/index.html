@@ -9092,6 +9092,89 @@ var _elm_community$random_extra$Random_Array$rangeLengthArray = F3(
 			},
 			A2(_elm_lang$core$Random$int, minLength, maxLength));
 	});
+var _cbenz$elm_bridge_game$Main$yesNoPerhaps = F3(
+	function (title, nameAttribute, tagger) {
+		var labelWithSpaceStyle = _elm_lang$core$Native_List.fromArray(
+			[
+				{ctor: '_Tuple2', _0: 'margin-right', _1: '1em'}
+			]);
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text(
+					A2(_elm_lang$core$Basics_ops['++'], title, ' : ')),
+					A2(
+					_elm_lang$html$Html$label,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$style(labelWithSpaceStyle)
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$input,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$type$('radio'),
+									_elm_lang$html$Html_Attributes$name(nameAttribute),
+									_elm_lang$html$Html_Events$onCheck(
+									_elm_lang$core$Basics$always(
+										tagger(
+											_elm_lang$core$Maybe$Just(true))))
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+							_elm_lang$html$Html$text('Oui')
+						])),
+					A2(
+					_elm_lang$html$Html$label,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$style(labelWithSpaceStyle)
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$input,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$type$('radio'),
+									_elm_lang$html$Html_Attributes$name(nameAttribute),
+									_elm_lang$html$Html_Events$onCheck(
+									_elm_lang$core$Basics$always(
+										tagger(
+											_elm_lang$core$Maybe$Just(false))))
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+							_elm_lang$html$Html$text('Non')
+						])),
+					A2(
+					_elm_lang$html$Html$label,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$input,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$type$('radio'),
+									_elm_lang$html$Html_Attributes$name(nameAttribute),
+									_elm_lang$html$Html_Events$onCheck(
+									_elm_lang$core$Basics$always(
+										tagger(_elm_lang$core$Maybe$Nothing))),
+									_elm_lang$html$Html_Attributes$checked(true)
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+							_elm_lang$html$Html$text('Peut-être')
+						]))
+				]));
+	});
 var _cbenz$elm_bridge_game$Main$ulWithoutBullets = function (children) {
 	return A2(
 		_elm_lang$html$Html$ul,
@@ -9583,9 +9666,9 @@ var _cbenz$elm_bridge_game$Main$Points = F3(
 	function (a, b, c) {
 		return {honneur: a, longueur: b, distribution: c};
 	});
-var _cbenz$elm_bridge_game$Main$Model = F2(
-	function (a, b) {
-		return {donne: a, hideOtherHands: b};
+var _cbenz$elm_bridge_game$Main$Model = F4(
+	function (a, b, c, d) {
+		return {donne: a, hideOtherHands: b, generateHandReguliere: c, generateFittedWithNord: d};
 	});
 var _cbenz$elm_bridge_game$Main$As = {ctor: 'As'};
 var _cbenz$elm_bridge_game$Main$Roi = {ctor: 'Roi'};
@@ -10042,7 +10125,7 @@ var _cbenz$elm_bridge_game$Main$donne1 = {
 };
 var _cbenz$elm_bridge_game$Main$init = {
 	ctor: '_Tuple2',
-	_0: {donne: _cbenz$elm_bridge_game$Main$donne1, hideOtherHands: false},
+	_0: {donne: _cbenz$elm_bridge_game$Main$donne1, hideOtherHands: false, generateHandReguliere: _elm_lang$core$Maybe$Nothing, generateFittedWithNord: _elm_lang$core$Maybe$Nothing},
 	_1: _elm_lang$core$Platform_Cmd$none
 };
 var _cbenz$elm_bridge_game$Main$SansAtout = {ctor: 'SansAtout'};
@@ -10067,11 +10150,17 @@ var _cbenz$elm_bridge_game$Main$nextEnchere = F2(
 			{ctor: '_Tuple2', _0: 1, _1: _cbenz$elm_bridge_game$Main$EnchereCoeur}) : (((_elm_lang$core$Native_Utils.cmp(points.honneur, 15) > -1) && ((_elm_lang$core$Native_Utils.cmp(points.honneur, 17) < 1) && _cbenz$elm_bridge_game$Main$isHandReguliere(main))) ? _cbenz$elm_bridge_game$Main$Enchere(
 			{ctor: '_Tuple2', _0: 1, _1: _cbenz$elm_bridge_game$Main$SansAtout}) : _cbenz$elm_bridge_game$Main$EnchereTodo))) : _cbenz$elm_bridge_game$Main$EnchereTodo;
 	});
+var _cbenz$elm_bridge_game$Main$GenerateFittedWithNord = function (a) {
+	return {ctor: 'GenerateFittedWithNord', _0: a};
+};
+var _cbenz$elm_bridge_game$Main$GenerateHandReguliere = function (a) {
+	return {ctor: 'GenerateHandReguliere', _0: a};
+};
 var _cbenz$elm_bridge_game$Main$HideOtherHands = function (a) {
 	return {ctor: 'HideOtherHands', _0: a};
 };
-var _cbenz$elm_bridge_game$Main$SetDonne = function (a) {
-	return {ctor: 'SetDonne', _0: a};
+var _cbenz$elm_bridge_game$Main$SetDonneFromGenerator = function (a) {
+	return {ctor: 'SetDonneFromGenerator', _0: a};
 };
 var _cbenz$elm_bridge_game$Main$update = F2(
 	function (msg, model) {
@@ -10081,17 +10170,42 @@ var _cbenz$elm_bridge_game$Main$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: A2(_elm_lang$core$Random$generate, _cbenz$elm_bridge_game$Main$SetDonne, _cbenz$elm_bridge_game$Main$donneGenerator)
+					_1: A2(_elm_lang$core$Random$generate, _cbenz$elm_bridge_game$Main$SetDonneFromGenerator, _cbenz$elm_bridge_game$Main$donneGenerator)
 				};
-			case 'SetDonne':
-				return {
+			case 'SetDonneFromGenerator':
+				var _p58 = _p54._0;
+				var constraintsAndPredicates = _elm_lang$core$Native_List.fromArray(
+					[
+						{ctor: '_Tuple2', _0: model.generateHandReguliere, _1: _cbenz$elm_bridge_game$Main$isHandReguliere},
+						{
+						ctor: '_Tuple2',
+						_0: model.generateFittedWithNord,
+						_1: _cbenz$elm_bridge_game$Main$isFit(_p58.nord)
+					}
+					]);
+				var isSatisfied = function (_p55) {
+					var _p56 = _p55;
+					var _p57 = _p56._0;
+					if (_p57.ctor === 'Just') {
+						return _elm_lang$core$Native_Utils.eq(
+							_p56._1(_p58.sud),
+							_p57._0);
+					} else {
+						return true;
+					}
+				};
+				return A2(_elm_lang$core$List$all, isSatisfied, constraintsAndPredicates) ? {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{donne: _p54._0}),
+						{donne: _p58}),
 					_1: _elm_lang$core$Platform_Cmd$none
+				} : {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: A2(_elm_lang$core$Random$generate, _cbenz$elm_bridge_game$Main$SetDonneFromGenerator, _cbenz$elm_bridge_game$Main$donneGenerator)
 				};
-			default:
+			case 'HideOtherHands':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -10099,13 +10213,29 @@ var _cbenz$elm_bridge_game$Main$update = F2(
 						{hideOtherHands: _p54._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			case 'GenerateHandReguliere':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{generateHandReguliere: _p54._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{generateFittedWithNord: _p54._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
 var _cbenz$elm_bridge_game$Main$GenerateDonne = {ctor: 'GenerateDonne'};
-var _cbenz$elm_bridge_game$Main$view = function (_p55) {
-	var _p56 = _p55;
-	var _p58 = _p56.hideOtherHands;
-	var _p57 = _p56.donne;
+var _cbenz$elm_bridge_game$Main$view = function (_p59) {
+	var _p60 = _p59;
+	var _p62 = _p60.hideOtherHands;
+	var _p61 = _p60.donne;
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -10120,7 +10250,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p55) {
 					[
 						_elm_lang$html$Html$text('🂡 Elm Bridge Game')
 					])),
-				A2(_cbenz$elm_bridge_game$Main$viewDonne, _p57, _p58),
+				A2(_cbenz$elm_bridge_game$Main$viewDonne, _p61, _p62),
 				A2(
 				_elm_lang$html$Html$ul,
 				_elm_lang$core$Native_List.fromArray(
@@ -10139,7 +10269,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p55) {
 									'La donne est ',
 									A2(
 										_elm_lang$core$Basics_ops['++'],
-										_cbenz$elm_bridge_game$Main$isDonneValid(_p57) ? 'valide' : 'invalide',
+										_cbenz$elm_bridge_game$Main$isDonneValid(_p61) ? 'valide' : 'invalide',
 										'.')))
 							])),
 						A2(
@@ -10151,7 +10281,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p55) {
 								A2(
 								_cbenz$elm_bridge_game$Main$viewFits,
 								'Nord et Sud',
-								A2(_cbenz$elm_bridge_game$Main$getFits, _p57.nord, _p57.sud))
+								A2(_cbenz$elm_bridge_game$Main$getFits, _p61.nord, _p61.sud))
 							])),
 						A2(
 						_elm_lang$html$Html$li,
@@ -10162,7 +10292,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p55) {
 								A2(
 								_cbenz$elm_bridge_game$Main$viewFits,
 								'Est et Ouest',
-								A2(_cbenz$elm_bridge_game$Main$getFits, _p57.est, _p57.ouest))
+								A2(_cbenz$elm_bridge_game$Main$getFits, _p61.est, _p61.ouest))
 							])),
 						A2(
 						_elm_lang$html$Html$li,
@@ -10175,7 +10305,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p55) {
 									_elm_lang$core$Basics_ops['++'],
 									'Prochaine enchère pour Sud : ',
 									_cbenz$elm_bridge_game$Main$showEnchere(
-										A2(_cbenz$elm_bridge_game$Main$nextEnchere, _p57.sud, _elm_lang$core$Maybe$Nothing))))
+										A2(_cbenz$elm_bridge_game$Main$nextEnchere, _p61.sud, _elm_lang$core$Maybe$Nothing))))
 							]))
 					])),
 				A2(
@@ -10185,14 +10315,37 @@ var _cbenz$elm_bridge_game$Main$view = function (_p55) {
 				_elm_lang$core$Native_List.fromArray(
 					[
 						A2(
-						_elm_lang$html$Html$button,
+						_elm_lang$html$Html$fieldset,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_elm_lang$html$Html_Events$onClick(_cbenz$elm_bridge_game$Main$GenerateDonne)
-							]),
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html$text('Générer')
+								A2(
+								_elm_lang$html$Html$legend,
+								_elm_lang$core$Native_List.fromArray(
+									[]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text('Contraintes pour Sud')
+									])),
+								A3(_cbenz$elm_bridge_game$Main$yesNoPerhaps, 'Main régulière', 'handReguliere', _cbenz$elm_bridge_game$Main$GenerateHandReguliere),
+								A3(_cbenz$elm_bridge_game$Main$yesNoPerhaps, 'Fitté avec Nord', 'fitWithNord', _cbenz$elm_bridge_game$Main$GenerateFittedWithNord),
+								A2(
+								_elm_lang$html$Html$br,
+								_elm_lang$core$Native_List.fromArray(
+									[]),
+								_elm_lang$core$Native_List.fromArray(
+									[])),
+								A2(
+								_elm_lang$html$Html$button,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Events$onClick(_cbenz$elm_bridge_game$Main$GenerateDonne)
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text('Générer')
+									]))
 							])),
 						A2(
 						_elm_lang$html$Html$br,
@@ -10212,7 +10365,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p55) {
 									[
 										_elm_lang$html$Html_Attributes$type$('checkbox'),
 										_elm_lang$html$Html_Events$onCheck(_cbenz$elm_bridge_game$Main$HideOtherHands),
-										_elm_lang$html$Html_Attributes$checked(_p58)
+										_elm_lang$html$Html_Attributes$checked(_p62)
 									]),
 								_elm_lang$core$Native_List.fromArray(
 									[])),
