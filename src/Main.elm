@@ -571,7 +571,9 @@ donneFromCartes cartes =
 
 
 type alias Model =
-    { donne : Donne }
+    { donne : Donne
+    , hideOtherMains : Bool
+    }
 
 
 
@@ -580,7 +582,11 @@ type alias Model =
 
 init : ( Model, Cmd msg )
 init =
-    ( { donne = donne1 }, Cmd.none )
+    ( { donne = donne1
+      , hideOtherMains = False
+      }
+    , Cmd.none
+    )
 
 
 
@@ -590,6 +596,7 @@ init =
 type Msg
     = GenerateDonne
     | SetDonne Donne
+    | HideOtherHands Bool
 
 
 
@@ -609,17 +616,20 @@ update msg model =
             --     ( model, Random.generate SetDonne donneGenerator )
             ( { model | donne = donne }, Cmd.none )
 
+        HideOtherHands hideOtherMains ->
+            ( { model | hideOtherMains = hideOtherMains }, Cmd.none )
+
 
 
 -- VIEW
 
 
 view : Model -> Html Msg
-view { donne } =
+view { donne, hideOtherMains } =
     div
         []
         [ h1 [] [ text "🂡 Elm Bridge Game" ]
-        , viewDonne donne
+        , viewDonne donne hideOtherMains
         , ul []
             [ li []
                 [ text
@@ -636,14 +646,21 @@ view { donne } =
             , li [] [ viewFits "Est et Ouest" (getFits donne.est donne.ouest) ]
             , li [] [ text ("Prochaine enchère pour Sud : " ++ (showEnchere (nextEnchere donne.sud Nothing))) ]
             ]
-        , button [ onClick GenerateDonne ] [ text "Générer" ]
+        , fieldset []
+            [ button [ onClick GenerateDonne ] [ text "Générer" ]
+            , br [] []
+            , label []
+                [ input [ type' "checkbox", onCheck HideOtherHands, checked hideOtherMains ] []
+                , text "Autres mains cachées"
+                ]
+            ]
         , hr [] []
         , a [ href "https://github.com/cbenz/elm-bridge-game" ] [ text "Source code" ]
         ]
 
 
-viewDonne : Donne -> Html msg
-viewDonne { nord, sud, est, ouest } =
+viewDonne : Donne -> Bool -> Html msg
+viewDonne { nord, sud, est, ouest } hideOtherMains =
     let
         flexItem children =
             div [ style [ ( "flex", "1 33%" ) ] ] children
@@ -666,6 +683,11 @@ viewDonne { nord, sud, est, ouest } =
                     ]
                 ]
             ]
+
+        hiddenHandDiv =
+            div
+                [ style [ ( "height", "6em" ) ] ]
+                [ text "Main cachée" ]
     in
         div
             [ style
@@ -674,13 +696,35 @@ viewDonne { nord, sud, est, ouest } =
                 ]
             ]
             [ flexItem [ text "" ]
-            , flexItem (mainChildren nord (Just sud))
+            , flexItem
+                (if hideOtherMains then
+                    [ hiddenHandDiv ]
+                 else
+                    mainChildren nord (Just sud)
+                )
             , flexItem [ text "" ]
-            , flexItem (mainChildren ouest (Just est))
+            , flexItem
+                (if hideOtherMains then
+                    [ hiddenHandDiv ]
+                 else
+                    mainChildren ouest (Just est)
+                )
             , flexItem [ text "" ]
-            , flexItem (mainChildren est (Just ouest))
+            , flexItem
+                (if hideOtherMains then
+                    [ hiddenHandDiv ]
+                 else
+                    mainChildren est (Just ouest)
+                )
             , flexItem [ text "" ]
-            , flexItem (mainChildren sud (Just nord))
+            , flexItem
+                (mainChildren sud
+                    (if hideOtherMains then
+                        Nothing
+                     else
+                        Just nord
+                    )
+                )
             , flexItem [ text "" ]
             ]
 
