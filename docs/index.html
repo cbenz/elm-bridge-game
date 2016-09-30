@@ -9232,9 +9232,25 @@ var _cbenz$elm_bridge_game$Main$viewFrenchEnumeration = function (xs) {
 			[]),
 		lastAsList);
 };
-var _cbenz$elm_bridge_game$Main$showCouleurEnchere = function (couleur) {
+var _cbenz$elm_bridge_game$Main$couleurEnchereStyle = function (couleur) {
+	var red = _elm_lang$core$Native_List.fromArray(
+		[
+			{ctor: '_Tuple2', _0: 'color', _1: 'red'}
+		]);
 	var _p1 = couleur;
 	switch (_p1.ctor) {
+		case 'EnchereCoeur':
+			return red;
+		case 'EnchereCarreau':
+			return red;
+		default:
+			return _elm_lang$core$Native_List.fromArray(
+				[]);
+	}
+};
+var _cbenz$elm_bridge_game$Main$showCouleurEnchere = function (couleur) {
+	var _p2 = couleur;
+	switch (_p2.ctor) {
 		case 'EncherePique':
 			return '♠';
 		case 'EnchereCoeur':
@@ -9247,22 +9263,42 @@ var _cbenz$elm_bridge_game$Main$showCouleurEnchere = function (couleur) {
 			return 'SA';
 	}
 };
-var _cbenz$elm_bridge_game$Main$showEnchere = function (enchere) {
-	var _p2 = enchere;
-	switch (_p2.ctor) {
+var _cbenz$elm_bridge_game$Main$viewCouleurEnchere = function (couleur) {
+	return A2(
+		_elm_lang$html$Html$span,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$style(
+				_cbenz$elm_bridge_game$Main$couleurEnchereStyle(couleur))
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html$text(
+				_cbenz$elm_bridge_game$Main$showCouleurEnchere(couleur))
+			]));
+};
+var _cbenz$elm_bridge_game$Main$viewEnchere = function (enchere) {
+	var _p3 = enchere;
+	switch (_p3.ctor) {
 		case 'Enchere':
 			return A2(
-				_elm_lang$core$Basics_ops['++'],
-				_elm_lang$core$Basics$toString(_p2._0._0),
-				_cbenz$elm_bridge_game$Main$showCouleurEnchere(_p2._0._1));
+				_elm_lang$html$Html$span,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_elm_lang$core$Basics$toString(_p3._0._0)),
+						_cbenz$elm_bridge_game$Main$viewCouleurEnchere(_p3._0._1)
+					]));
 		case 'Passe':
-			return 'Passe';
+			return _elm_lang$html$Html$text('Passe');
 		default:
-			return 'TODO (pas encore programmé)';
+			return _elm_lang$html$Html$text('TODO (pas encore programmé)');
 	}
 };
-var _cbenz$elm_bridge_game$Main$showRepartition = function (_p3) {
-	var _p4 = _p3;
+var _cbenz$elm_bridge_game$Main$showRepartition = function (_p4) {
+	var _p5 = _p4;
 	return A2(
 		_elm_lang$core$String$join,
 		'-',
@@ -9275,19 +9311,19 @@ var _cbenz$elm_bridge_game$Main$showRepartition = function (_p3) {
 						_elm_lang$core$List$map,
 						_elm_lang$core$List$length,
 						_elm_lang$core$Native_List.fromArray(
-							[_p4.carreau, _p4.coeur, _p4.pique, _p4.trefle]))))));
+							[_p5.carreau, _p5.coeur, _p5.pique, _p5.trefle]))))));
 };
-var _cbenz$elm_bridge_game$Main$showPoints = function (_p5) {
-	var _p6 = _p5;
-	var _p12 = _p6.longueur;
-	var _p11 = _p6.honneur;
-	var _p10 = _p6.distribution;
+var _cbenz$elm_bridge_game$Main$showPoints = function (_p6) {
+	var _p7 = _p6;
+	var _p13 = _p7.longueur;
+	var _p12 = _p7.honneur;
+	var _p11 = _p7.distribution;
 	var extended = function () {
-		var _p7 = _p10;
-		if (_p7.ctor === 'Just') {
-			return (_p11 + _p12) + _p7._0;
+		var _p8 = _p11;
+		if (_p8.ctor === 'Just') {
+			return (_p12 + _p13) + _p8._0;
 		} else {
-			return _p11 + _p12;
+			return _p12 + _p13;
 		}
 	}();
 	return A2(
@@ -9297,38 +9333,38 @@ var _cbenz$elm_bridge_game$Main$showPoints = function (_p5) {
 			_elm_lang$core$List_ops['::'],
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				_elm_lang$core$Basics$toString(_p11),
+				_elm_lang$core$Basics$toString(_p12),
 				A2(
 					_elm_lang$core$Basics_ops['++'],
 					'H',
-					_elm_lang$core$Native_Utils.eq(extended, _p11) ? A2(
+					_elm_lang$core$Native_Utils.eq(extended, _p12) ? A2(
 						_elm_lang$core$Basics_ops['++'],
 						'(',
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							function () {
-								var _p8 = _p10;
-								if (_p8.ctor === 'Just') {
+								var _p9 = _p11;
+								if (_p9.ctor === 'Just') {
 									return 'LD';
 								} else {
 									return 'L';
 								}
 							}(),
 							')')) : '')),
-			_elm_lang$core$Native_Utils.eq(extended, _p11) ? _elm_lang$core$Native_List.fromArray(
+			_elm_lang$core$Native_Utils.eq(extended, _p12) ? _elm_lang$core$Native_List.fromArray(
 				[]) : _elm_lang$core$Native_List.fromArray(
 				[
 					function () {
-					var _p9 = _p10;
-					if (_p9.ctor === 'Just') {
+					var _p10 = _p11;
+					if (_p10.ctor === 'Just') {
 						return A2(
 							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString((_p11 + _p12) + _p9._0),
+							_elm_lang$core$Basics$toString((_p12 + _p13) + _p10._0),
 							'HLD');
 					} else {
 						return A2(
 							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(_p11 + _p12),
+							_elm_lang$core$Basics$toString(_p12 + _p13),
 							'HL');
 					}
 				}()
@@ -9343,10 +9379,10 @@ var _cbenz$elm_bridge_game$Main$pointsDistributionCouleur = function (cartes) {
 		_elm_lang$core$List$length(cartes),
 		2) ? _elm_lang$core$Maybe$Just(1) : _elm_lang$core$Maybe$Nothing));
 };
-var _cbenz$elm_bridge_game$Main$pointsHonneurCarte = function (_p13) {
-	var _p14 = _p13;
-	var _p15 = _p14._0;
-	switch (_p15.ctor) {
+var _cbenz$elm_bridge_game$Main$pointsHonneurCarte = function (_p14) {
+	var _p15 = _p14;
+	var _p16 = _p15._0;
+	switch (_p16.ctor) {
 		case 'Valet':
 			return 1;
 		case 'Dame':
@@ -9360,10 +9396,10 @@ var _cbenz$elm_bridge_game$Main$pointsHonneurCarte = function (_p13) {
 	}
 };
 var _cbenz$elm_bridge_game$Main$sortCartes = function (cartes) {
-	var valeurCarteIndex = function (_p16) {
-		var _p17 = _p16;
-		var _p18 = _p17._0;
-		switch (_p18.ctor) {
+	var valeurCarteIndex = function (_p17) {
+		var _p18 = _p17;
+		var _p19 = _p18._0;
+		switch (_p19.ctor) {
 			case 'V2':
 				return 0;
 			case 'V3':
@@ -9395,13 +9431,13 @@ var _cbenz$elm_bridge_game$Main$sortCartes = function (cartes) {
 	return _elm_lang$core$List$reverse(
 		A2(_elm_lang$core$List$sortBy, valeurCarteIndex, cartes));
 };
-var _cbenz$elm_bridge_game$Main$handRepartition = function (_p19) {
-	var _p20 = _p19;
+var _cbenz$elm_bridge_game$Main$handRepartition = function (_p20) {
+	var _p21 = _p20;
 	return A2(
 		_elm_lang$core$List$map,
 		_elm_lang$core$List$length,
 		_elm_lang$core$Native_List.fromArray(
-			[_p20.pique, _p20.coeur, _p20.carreau, _p20.trefle]));
+			[_p21.pique, _p21.coeur, _p21.carreau, _p21.trefle]));
 };
 var _cbenz$elm_bridge_game$Main$isHandReguliere = function (main) {
 	var repartition = _cbenz$elm_bridge_game$Main$handRepartition(main);
@@ -9432,46 +9468,46 @@ var _cbenz$elm_bridge_game$Main$emptyHand = {
 		[])
 };
 var _cbenz$elm_bridge_game$Main$mainFromCartes = function (cartes) {
-	return function (_p21) {
-		var _p22 = _p21;
+	return function (_p22) {
+		var _p23 = _p22;
 		return {
-			pique: _cbenz$elm_bridge_game$Main$sortCartes(_p22.pique),
-			coeur: _cbenz$elm_bridge_game$Main$sortCartes(_p22.coeur),
-			carreau: _cbenz$elm_bridge_game$Main$sortCartes(_p22.carreau),
-			trefle: _cbenz$elm_bridge_game$Main$sortCartes(_p22.trefle)
+			pique: _cbenz$elm_bridge_game$Main$sortCartes(_p23.pique),
+			coeur: _cbenz$elm_bridge_game$Main$sortCartes(_p23.coeur),
+			carreau: _cbenz$elm_bridge_game$Main$sortCartes(_p23.carreau),
+			trefle: _cbenz$elm_bridge_game$Main$sortCartes(_p23.trefle)
 		};
 	}(
 		A3(
 			_elm_lang$core$List$foldl,
 			F2(
-				function (_p23, mainAccu) {
-					var _p24 = _p23;
-					var _p26 = _p24;
-					var _p25 = _p24._1;
-					switch (_p25.ctor) {
+				function (_p24, mainAccu) {
+					var _p25 = _p24;
+					var _p27 = _p25;
+					var _p26 = _p25._1;
+					switch (_p26.ctor) {
 						case 'Pique':
 							return _elm_lang$core$Native_Utils.update(
 								mainAccu,
 								{
-									pique: A2(_elm_lang$core$List_ops['::'], _p26, mainAccu.pique)
+									pique: A2(_elm_lang$core$List_ops['::'], _p27, mainAccu.pique)
 								});
 						case 'Coeur':
 							return _elm_lang$core$Native_Utils.update(
 								mainAccu,
 								{
-									coeur: A2(_elm_lang$core$List_ops['::'], _p26, mainAccu.coeur)
+									coeur: A2(_elm_lang$core$List_ops['::'], _p27, mainAccu.coeur)
 								});
 						case 'Carreau':
 							return _elm_lang$core$Native_Utils.update(
 								mainAccu,
 								{
-									carreau: A2(_elm_lang$core$List_ops['::'], _p26, mainAccu.carreau)
+									carreau: A2(_elm_lang$core$List_ops['::'], _p27, mainAccu.carreau)
 								});
 						default:
 							return _elm_lang$core$Native_Utils.update(
 								mainAccu,
 								{
-									trefle: A2(_elm_lang$core$List_ops['::'], _p26, mainAccu.trefle)
+									trefle: A2(_elm_lang$core$List_ops['::'], _p27, mainAccu.trefle)
 								});
 					}
 				}),
@@ -9479,38 +9515,38 @@ var _cbenz$elm_bridge_game$Main$mainFromCartes = function (cartes) {
 			cartes));
 };
 var _cbenz$elm_bridge_game$Main$donneFromCartes = function (cartes) {
-	return function (_p27) {
-		var _p28 = _p27;
+	return function (_p28) {
+		var _p29 = _p28;
 		return {
-			nord: _cbenz$elm_bridge_game$Main$mainFromCartes(_p28.nord),
-			sud: _cbenz$elm_bridge_game$Main$mainFromCartes(_p28.sud),
-			est: _cbenz$elm_bridge_game$Main$mainFromCartes(_p28.est),
-			ouest: _cbenz$elm_bridge_game$Main$mainFromCartes(_p28.ouest)
+			nord: _cbenz$elm_bridge_game$Main$mainFromCartes(_p29.nord),
+			sud: _cbenz$elm_bridge_game$Main$mainFromCartes(_p29.sud),
+			est: _cbenz$elm_bridge_game$Main$mainFromCartes(_p29.est),
+			ouest: _cbenz$elm_bridge_game$Main$mainFromCartes(_p29.ouest)
 		};
 	}(
 		A3(
 			_elm_lang$core$List$foldl,
 			F2(
-				function (_p29, donneAccu) {
-					var _p30 = _p29;
-					var _p31 = _p30._1;
-					var modulo = A2(_elm_lang$core$Basics_ops['%'], _p30._0, 4);
+				function (_p30, donneAccu) {
+					var _p31 = _p30;
+					var _p32 = _p31._1;
+					var modulo = A2(_elm_lang$core$Basics_ops['%'], _p31._0, 4);
 					return _elm_lang$core$Native_Utils.eq(modulo, 0) ? _elm_lang$core$Native_Utils.update(
 						donneAccu,
 						{
-							nord: A2(_elm_lang$core$List_ops['::'], _p31, donneAccu.nord)
+							nord: A2(_elm_lang$core$List_ops['::'], _p32, donneAccu.nord)
 						}) : (_elm_lang$core$Native_Utils.eq(modulo, 1) ? _elm_lang$core$Native_Utils.update(
 						donneAccu,
 						{
-							sud: A2(_elm_lang$core$List_ops['::'], _p31, donneAccu.sud)
+							sud: A2(_elm_lang$core$List_ops['::'], _p32, donneAccu.sud)
 						}) : (_elm_lang$core$Native_Utils.eq(modulo, 2) ? _elm_lang$core$Native_Utils.update(
 						donneAccu,
 						{
-							est: A2(_elm_lang$core$List_ops['::'], _p31, donneAccu.est)
+							est: A2(_elm_lang$core$List_ops['::'], _p32, donneAccu.est)
 						}) : _elm_lang$core$Native_Utils.update(
 						donneAccu,
 						{
-							ouest: A2(_elm_lang$core$List_ops['::'], _p31, donneAccu.ouest)
+							ouest: A2(_elm_lang$core$List_ops['::'], _p32, donneAccu.ouest)
 						})));
 				}),
 			{
@@ -9537,8 +9573,8 @@ var _cbenz$elm_bridge_game$Main$concatHand = function (main) {
 			[main.pique, main.coeur, main.carreau, main.trefle]));
 };
 var _cbenz$elm_bridge_game$Main$showCouleurCarte = function (couleur) {
-	var _p32 = couleur;
-	switch (_p32.ctor) {
+	var _p33 = couleur;
+	switch (_p33.ctor) {
 		case 'Pique':
 			return '♠';
 		case 'Coeur':
@@ -9548,6 +9584,20 @@ var _cbenz$elm_bridge_game$Main$showCouleurCarte = function (couleur) {
 		default:
 			return '♣';
 	}
+};
+var _cbenz$elm_bridge_game$Main$viewCouleurCarte = function (couleur) {
+	return A2(
+		_elm_lang$html$Html$span,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$style(
+				_cbenz$elm_bridge_game$Main$couleurCarteStyle(couleur))
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html$text(
+				_cbenz$elm_bridge_game$Main$showCouleurCarte(couleur))
+			]));
 };
 var _cbenz$elm_bridge_game$Main$viewFits = F2(
 	function (msg, fit) {
@@ -9564,8 +9614,8 @@ var _cbenz$elm_bridge_game$Main$viewFits = F2(
 							A2(_elm_lang$core$Basics_ops['++'], msg, ' '))
 						]),
 						function () {
-						var _p33 = fit;
-						if (_p33.ctor === '[]') {
+						var _p34 = fit;
+						if (_p34.ctor === '[]') {
 							return _elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html$text('ne sont pas fittés.')
@@ -9579,9 +9629,8 @@ var _cbenz$elm_bridge_game$Main$viewFits = F2(
 									_cbenz$elm_bridge_game$Main$viewFrenchEnumeration(
 										A2(
 											_elm_lang$core$List$map,
-											function (_p34) {
-												var _p35 = _p34;
-												var _p36 = _p35._0;
+											function (_p35) {
+												var _p36 = _p35;
 												return A2(
 													_elm_lang$html$Html$span,
 													_elm_lang$core$Native_List.fromArray(
@@ -9589,7 +9638,7 @@ var _cbenz$elm_bridge_game$Main$viewFits = F2(
 													_elm_lang$core$Native_List.fromArray(
 														[
 															_elm_lang$html$Html$text(
-															_elm_lang$core$Basics$toString(_p35._1)),
+															_elm_lang$core$Basics$toString(_p36._1)),
 															A2(
 															_elm_lang$html$Html$sup,
 															_elm_lang$core$Native_List.fromArray(
@@ -9599,21 +9648,10 @@ var _cbenz$elm_bridge_game$Main$viewFits = F2(
 																	_elm_lang$html$Html$text('ème')
 																])),
 															_elm_lang$html$Html$text(' à '),
-															A2(
-															_elm_lang$html$Html$span,
-															_elm_lang$core$Native_List.fromArray(
-																[
-																	_elm_lang$html$Html_Attributes$style(
-																	_cbenz$elm_bridge_game$Main$couleurCarteStyle(_p36))
-																]),
-															_elm_lang$core$Native_List.fromArray(
-																[
-																	_elm_lang$html$Html$text(
-																	_cbenz$elm_bridge_game$Main$showCouleurCarte(_p36))
-																]))
+															_cbenz$elm_bridge_game$Main$viewCouleurCarte(_p36._0)
 														]));
 											},
-											_p33)),
+											_p34)),
 									_elm_lang$core$Native_List.fromArray(
 										[
 											_elm_lang$html$Html$text('.')
@@ -10300,12 +10338,9 @@ var _cbenz$elm_bridge_game$Main$view = function (_p59) {
 							[]),
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_elm_lang$html$Html$text(
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									'Prochaine enchère pour Sud : ',
-									_cbenz$elm_bridge_game$Main$showEnchere(
-										A2(_cbenz$elm_bridge_game$Main$nextEnchere, _p61.sud, _elm_lang$core$Maybe$Nothing))))
+								_elm_lang$html$Html$text('Prochaine enchère pour Sud : '),
+								_cbenz$elm_bridge_game$Main$viewEnchere(
+								A2(_cbenz$elm_bridge_game$Main$nextEnchere, _p61.sud, _elm_lang$core$Maybe$Nothing))
 							]))
 					])),
 				A2(
