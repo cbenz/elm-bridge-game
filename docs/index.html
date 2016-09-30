@@ -9196,32 +9196,60 @@ var _cbenz$elm_bridge_game$Main$showRepartition = function (_p3) {
 };
 var _cbenz$elm_bridge_game$Main$showPoints = function (_p5) {
 	var _p6 = _p5;
-	var _p9 = _p6.longueur;
-	var _p8 = _p6.honneur;
+	var _p12 = _p6.longueur;
+	var _p11 = _p6.honneur;
+	var _p10 = _p6.distribution;
+	var extended = function () {
+		var _p7 = _p10;
+		if (_p7.ctor === 'Just') {
+			return (_p11 + _p12) + _p7._0;
+		} else {
+			return _p11 + _p12;
+		}
+	}();
 	return A2(
 		_elm_lang$core$String$join,
 		' ',
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
+		A2(
+			_elm_lang$core$List_ops['::'],
+			A2(
 				_elm_lang$core$Basics_ops['++'],
-				_elm_lang$core$Basics$toString(_p8),
-				'H'),
-				function () {
-				var _p7 = _p6.distribution;
-				if (_p7.ctor === 'Just') {
-					return A2(
+				_elm_lang$core$Basics$toString(_p11),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'H',
+					_elm_lang$core$Native_Utils.eq(extended, _p11) ? A2(
 						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString((_p8 + _p9) + _p7._0),
-						'HLD');
-				} else {
-					return A2(
-						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(_p8 + _p9),
-						'HL');
-				}
-			}()
-			]));
+						'(',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							function () {
+								var _p8 = _p10;
+								if (_p8.ctor === 'Just') {
+									return 'LD';
+								} else {
+									return 'L';
+								}
+							}(),
+							')')) : '')),
+			_elm_lang$core$Native_Utils.eq(extended, _p11) ? _elm_lang$core$Native_List.fromArray(
+				[]) : _elm_lang$core$Native_List.fromArray(
+				[
+					function () {
+					var _p9 = _p10;
+					if (_p9.ctor === 'Just') {
+						return A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString((_p11 + _p12) + _p9._0),
+							'HLD');
+					} else {
+						return A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(_p11 + _p12),
+							'HL');
+					}
+				}()
+				])));
 };
 var _cbenz$elm_bridge_game$Main$pointsDistributionCouleur = function (cartes) {
 	return _elm_lang$core$Native_Utils.eq(
@@ -9232,10 +9260,10 @@ var _cbenz$elm_bridge_game$Main$pointsDistributionCouleur = function (cartes) {
 		_elm_lang$core$List$length(cartes),
 		2) ? _elm_lang$core$Maybe$Just(1) : _elm_lang$core$Maybe$Nothing));
 };
-var _cbenz$elm_bridge_game$Main$pointsHonneurCarte = function (_p10) {
-	var _p11 = _p10;
-	var _p12 = _p11._0;
-	switch (_p12.ctor) {
+var _cbenz$elm_bridge_game$Main$pointsHonneurCarte = function (_p13) {
+	var _p14 = _p13;
+	var _p15 = _p14._0;
+	switch (_p15.ctor) {
 		case 'Valet':
 			return 1;
 		case 'Dame':
@@ -9249,10 +9277,10 @@ var _cbenz$elm_bridge_game$Main$pointsHonneurCarte = function (_p10) {
 	}
 };
 var _cbenz$elm_bridge_game$Main$sortCartes = function (cartes) {
-	var valeurCarteIndex = function (_p13) {
-		var _p14 = _p13;
-		var _p15 = _p14._0;
-		switch (_p15.ctor) {
+	var valeurCarteIndex = function (_p16) {
+		var _p17 = _p16;
+		var _p18 = _p17._0;
+		switch (_p18.ctor) {
 			case 'V2':
 				return 0;
 			case 'V3':
@@ -9284,16 +9312,16 @@ var _cbenz$elm_bridge_game$Main$sortCartes = function (cartes) {
 	return _elm_lang$core$List$reverse(
 		A2(_elm_lang$core$List$sortBy, valeurCarteIndex, cartes));
 };
-var _cbenz$elm_bridge_game$Main$repartitionMain = function (_p16) {
-	var _p17 = _p16;
+var _cbenz$elm_bridge_game$Main$handRepartition = function (_p19) {
+	var _p20 = _p19;
 	return A2(
 		_elm_lang$core$List$map,
 		_elm_lang$core$List$length,
 		_elm_lang$core$Native_List.fromArray(
-			[_p17.pique, _p17.coeur, _p17.carreau, _p17.trefle]));
+			[_p20.pique, _p20.coeur, _p20.carreau, _p20.trefle]));
 };
-var _cbenz$elm_bridge_game$Main$isMainReguliere = function (main) {
-	var repartition = _cbenz$elm_bridge_game$Main$repartitionMain(main);
+var _cbenz$elm_bridge_game$Main$isHandReguliere = function (main) {
+	var repartition = _cbenz$elm_bridge_game$Main$handRepartition(main);
 	return A2(
 		_elm_lang$core$List$any,
 		F2(
@@ -9310,7 +9338,7 @@ var _cbenz$elm_bridge_game$Main$isMainReguliere = function (main) {
 				[5, 3, 3, 2])
 			]));
 };
-var _cbenz$elm_bridge_game$Main$emptyMain = {
+var _cbenz$elm_bridge_game$Main$emptyHand = {
 	pique: _elm_lang$core$Native_List.fromArray(
 		[]),
 	coeur: _elm_lang$core$Native_List.fromArray(
@@ -9321,85 +9349,85 @@ var _cbenz$elm_bridge_game$Main$emptyMain = {
 		[])
 };
 var _cbenz$elm_bridge_game$Main$mainFromCartes = function (cartes) {
-	return function (_p18) {
-		var _p19 = _p18;
+	return function (_p21) {
+		var _p22 = _p21;
 		return {
-			pique: _cbenz$elm_bridge_game$Main$sortCartes(_p19.pique),
-			coeur: _cbenz$elm_bridge_game$Main$sortCartes(_p19.coeur),
-			carreau: _cbenz$elm_bridge_game$Main$sortCartes(_p19.carreau),
-			trefle: _cbenz$elm_bridge_game$Main$sortCartes(_p19.trefle)
+			pique: _cbenz$elm_bridge_game$Main$sortCartes(_p22.pique),
+			coeur: _cbenz$elm_bridge_game$Main$sortCartes(_p22.coeur),
+			carreau: _cbenz$elm_bridge_game$Main$sortCartes(_p22.carreau),
+			trefle: _cbenz$elm_bridge_game$Main$sortCartes(_p22.trefle)
 		};
 	}(
 		A3(
 			_elm_lang$core$List$foldl,
 			F2(
-				function (_p20, mainAccu) {
-					var _p21 = _p20;
-					var _p23 = _p21;
-					var _p22 = _p21._1;
-					switch (_p22.ctor) {
+				function (_p23, mainAccu) {
+					var _p24 = _p23;
+					var _p26 = _p24;
+					var _p25 = _p24._1;
+					switch (_p25.ctor) {
 						case 'Pique':
 							return _elm_lang$core$Native_Utils.update(
 								mainAccu,
 								{
-									pique: A2(_elm_lang$core$List_ops['::'], _p23, mainAccu.pique)
+									pique: A2(_elm_lang$core$List_ops['::'], _p26, mainAccu.pique)
 								});
 						case 'Coeur':
 							return _elm_lang$core$Native_Utils.update(
 								mainAccu,
 								{
-									coeur: A2(_elm_lang$core$List_ops['::'], _p23, mainAccu.coeur)
+									coeur: A2(_elm_lang$core$List_ops['::'], _p26, mainAccu.coeur)
 								});
 						case 'Carreau':
 							return _elm_lang$core$Native_Utils.update(
 								mainAccu,
 								{
-									carreau: A2(_elm_lang$core$List_ops['::'], _p23, mainAccu.carreau)
+									carreau: A2(_elm_lang$core$List_ops['::'], _p26, mainAccu.carreau)
 								});
 						default:
 							return _elm_lang$core$Native_Utils.update(
 								mainAccu,
 								{
-									trefle: A2(_elm_lang$core$List_ops['::'], _p23, mainAccu.trefle)
+									trefle: A2(_elm_lang$core$List_ops['::'], _p26, mainAccu.trefle)
 								});
 					}
 				}),
-			_cbenz$elm_bridge_game$Main$emptyMain,
+			_cbenz$elm_bridge_game$Main$emptyHand,
 			cartes));
 };
 var _cbenz$elm_bridge_game$Main$donneFromCartes = function (cartes) {
-	return function (_p24) {
-		var _p25 = _p24;
+	return function (_p27) {
+		var _p28 = _p27;
 		return {
-			nord: _cbenz$elm_bridge_game$Main$mainFromCartes(_p25.nord),
-			sud: _cbenz$elm_bridge_game$Main$mainFromCartes(_p25.sud),
-			est: _cbenz$elm_bridge_game$Main$mainFromCartes(_p25.est),
-			ouest: _cbenz$elm_bridge_game$Main$mainFromCartes(_p25.ouest)
+			nord: _cbenz$elm_bridge_game$Main$mainFromCartes(_p28.nord),
+			sud: _cbenz$elm_bridge_game$Main$mainFromCartes(_p28.sud),
+			est: _cbenz$elm_bridge_game$Main$mainFromCartes(_p28.est),
+			ouest: _cbenz$elm_bridge_game$Main$mainFromCartes(_p28.ouest)
 		};
 	}(
 		A3(
 			_elm_lang$core$List$foldl,
 			F2(
-				function (_p26, donneAccu) {
-					var _p27 = _p26;
-					var _p28 = _p27._1;
-					var modulo = A2(_elm_lang$core$Basics_ops['%'], _p27._0, 4);
+				function (_p29, donneAccu) {
+					var _p30 = _p29;
+					var _p31 = _p30._1;
+					var modulo = A2(_elm_lang$core$Basics_ops['%'], _p30._0, 4);
 					return _elm_lang$core$Native_Utils.eq(modulo, 0) ? _elm_lang$core$Native_Utils.update(
 						donneAccu,
 						{
-							nord: A2(_elm_lang$core$List_ops['::'], _p28, donneAccu.nord)
+							nord: A2(_elm_lang$core$List_ops['::'], _p31, donneAccu.nord)
 						}) : (_elm_lang$core$Native_Utils.eq(modulo, 1) ? _elm_lang$core$Native_Utils.update(
 						donneAccu,
 						{
-							sud: A2(_elm_lang$core$List_ops['::'], _p28, donneAccu.sud)
+							sud: A2(_elm_lang$core$List_ops['::'], _p31, donneAccu.sud)
 						}) : (_elm_lang$core$Native_Utils.eq(modulo, 2) ? _elm_lang$core$Native_Utils.update(
 						donneAccu,
 						{
-							est: A2(_elm_lang$core$List_ops['::'], _p28, donneAccu.est)
+							est: A2(_elm_lang$core$List_ops['::'], _p31, donneAccu.est)
 						}) : _elm_lang$core$Native_Utils.update(
 						donneAccu,
 						{
-							ouest: A2(_elm_lang$core$List_ops['::'], _p28, donneAccu.ouest)
+							ouest: A2(_elm_lang$core$List_ops['::'], _p31, donneAccu.ouest)
 						})));
 				}),
 			{
@@ -9420,14 +9448,14 @@ var _cbenz$elm_bridge_game$Main$donneFromCartes = function (cartes) {
 					}),
 				cartes)));
 };
-var _cbenz$elm_bridge_game$Main$concatMain = function (main) {
+var _cbenz$elm_bridge_game$Main$concatHand = function (main) {
 	return _elm_lang$core$List$concat(
 		_elm_lang$core$Native_List.fromArray(
 			[main.pique, main.coeur, main.carreau, main.trefle]));
 };
 var _cbenz$elm_bridge_game$Main$showCouleurCarte = function (couleur) {
-	var _p29 = couleur;
-	switch (_p29.ctor) {
+	var _p32 = couleur;
+	switch (_p32.ctor) {
 		case 'Pique':
 			return '♠';
 		case 'Coeur':
@@ -9453,8 +9481,8 @@ var _cbenz$elm_bridge_game$Main$viewFits = F2(
 							A2(_elm_lang$core$Basics_ops['++'], msg, ' '))
 						]),
 						function () {
-						var _p30 = fit;
-						if (_p30.ctor === '[]') {
+						var _p33 = fit;
+						if (_p33.ctor === '[]') {
 							return _elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html$text('ne sont pas fittés.')
@@ -9468,9 +9496,9 @@ var _cbenz$elm_bridge_game$Main$viewFits = F2(
 									_cbenz$elm_bridge_game$Main$viewFrenchEnumeration(
 										A2(
 											_elm_lang$core$List$map,
-											function (_p31) {
-												var _p32 = _p31;
-												var _p33 = _p32._0;
+											function (_p34) {
+												var _p35 = _p34;
+												var _p36 = _p35._0;
 												return A2(
 													_elm_lang$html$Html$span,
 													_elm_lang$core$Native_List.fromArray(
@@ -9478,7 +9506,7 @@ var _cbenz$elm_bridge_game$Main$viewFits = F2(
 													_elm_lang$core$Native_List.fromArray(
 														[
 															_elm_lang$html$Html$text(
-															_elm_lang$core$Basics$toString(_p32._1)),
+															_elm_lang$core$Basics$toString(_p35._1)),
 															A2(
 															_elm_lang$html$Html$sup,
 															_elm_lang$core$Native_List.fromArray(
@@ -9493,16 +9521,16 @@ var _cbenz$elm_bridge_game$Main$viewFits = F2(
 															_elm_lang$core$Native_List.fromArray(
 																[
 																	_elm_lang$html$Html_Attributes$style(
-																	_cbenz$elm_bridge_game$Main$couleurCarteStyle(_p33))
+																	_cbenz$elm_bridge_game$Main$couleurCarteStyle(_p36))
 																]),
 															_elm_lang$core$Native_List.fromArray(
 																[
 																	_elm_lang$html$Html$text(
-																	_cbenz$elm_bridge_game$Main$showCouleurCarte(_p33))
+																	_cbenz$elm_bridge_game$Main$showCouleurCarte(_p36))
 																]))
 														]));
 											},
-											_p30)),
+											_p33)),
 									_elm_lang$core$Native_List.fromArray(
 										[
 											_elm_lang$html$Html$text('.')
@@ -9512,8 +9540,8 @@ var _cbenz$elm_bridge_game$Main$viewFits = F2(
 					])));
 	});
 var _cbenz$elm_bridge_game$Main$showValeurCarte = function (valeur) {
-	var _p34 = valeur;
-	switch (_p34.ctor) {
+	var _p37 = valeur;
+	switch (_p37.ctor) {
 		case 'V2':
 			return '2';
 		case 'V3':
@@ -9542,8 +9570,8 @@ var _cbenz$elm_bridge_game$Main$showValeurCarte = function (valeur) {
 			return 'A';
 	}
 };
-var _cbenz$elm_bridge_game$Main$emptyDonne = {nord: _cbenz$elm_bridge_game$Main$emptyMain, sud: _cbenz$elm_bridge_game$Main$emptyMain, est: _cbenz$elm_bridge_game$Main$emptyMain, ouest: _cbenz$elm_bridge_game$Main$emptyMain};
-var _cbenz$elm_bridge_game$Main$Main = F4(
+var _cbenz$elm_bridge_game$Main$emptyDonne = {nord: _cbenz$elm_bridge_game$Main$emptyHand, sud: _cbenz$elm_bridge_game$Main$emptyHand, est: _cbenz$elm_bridge_game$Main$emptyHand, ouest: _cbenz$elm_bridge_game$Main$emptyHand};
+var _cbenz$elm_bridge_game$Main$Hand = F4(
 	function (a, b, c, d) {
 		return {pique: a, coeur: b, carreau: c, trefle: d};
 	});
@@ -9555,9 +9583,10 @@ var _cbenz$elm_bridge_game$Main$Points = F3(
 	function (a, b, c) {
 		return {honneur: a, longueur: b, distribution: c};
 	});
-var _cbenz$elm_bridge_game$Main$Model = function (a) {
-	return {donne: a};
-};
+var _cbenz$elm_bridge_game$Main$Model = F2(
+	function (a, b) {
+		return {donne: a, hideOtherHands: b};
+	});
 var _cbenz$elm_bridge_game$Main$As = {ctor: 'As'};
 var _cbenz$elm_bridge_game$Main$Roi = {ctor: 'Roi'};
 var _cbenz$elm_bridge_game$Main$Dame = {ctor: 'Dame'};
@@ -9566,9 +9595,9 @@ var _cbenz$elm_bridge_game$Main$pointsLongueurCouleur = function (cartes) {
 	var isBelleCouleur = function (cartes) {
 		var valeurs = A2(
 			_elm_lang$core$List$map,
-			function (_p35) {
-				var _p36 = _p35;
-				return _p36._0;
+			function (_p38) {
+				var _p39 = _p38;
+				return _p39._0;
 			},
 			cartes);
 		return A2(
@@ -9613,18 +9642,18 @@ var _cbenz$elm_bridge_game$Main$getFits = F2(
 	function (main1, main2) {
 		return A2(
 			_elm_lang$core$List$filterMap,
-			function (_p37) {
-				var _p38 = _p37;
-				var _p39 = _p38._0;
+			function (_p40) {
+				var _p41 = _p40;
+				var _p42 = _p41._0;
 				var fitLength = _elm_lang$core$List$length(
 					_elm_lang$core$List$concat(
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_p39(main1),
-								_p39(main2)
+								_p42(main1),
+								_p42(main2)
 							])));
 				return (_elm_lang$core$Native_Utils.cmp(fitLength, 8) > -1) ? _elm_lang$core$Maybe$Just(
-					{ctor: '_Tuple2', _0: _p38._1, _1: fitLength}) : _elm_lang$core$Maybe$Nothing;
+					{ctor: '_Tuple2', _0: _p41._1, _1: fitLength}) : _elm_lang$core$Maybe$Nothing;
 			},
 			_elm_lang$core$Native_List.fromArray(
 				[
@@ -9665,14 +9694,14 @@ var _cbenz$elm_bridge_game$Main$isFit = F2(
 				A2(_cbenz$elm_bridge_game$Main$getFits, main1, main2)),
 			0) > 0;
 	});
-var _cbenz$elm_bridge_game$Main$pointsMain = F2(
-	function (main, otherMain) {
+var _cbenz$elm_bridge_game$Main$pointsHand = F2(
+	function (main, otherHand) {
 		return {
 			honneur: _elm_lang$core$List$sum(
 				A2(
 					_elm_lang$core$List$map,
 					_cbenz$elm_bridge_game$Main$pointsHonneurCarte,
-					_cbenz$elm_bridge_game$Main$concatMain(main))),
+					_cbenz$elm_bridge_game$Main$concatHand(main))),
 			longueur: _elm_lang$core$List$sum(
 				A2(
 					_elm_lang$core$List$map,
@@ -9685,9 +9714,9 @@ var _cbenz$elm_bridge_game$Main$pointsMain = F2(
 							_cbenz$elm_bridge_game$Main$pointsLongueurCouleur(main.trefle)
 						]))),
 			distribution: function () {
-				var _p40 = otherMain;
-				if (_p40.ctor === 'Just') {
-					return A2(_cbenz$elm_bridge_game$Main$isFit, main, _p40._0) ? _elm_lang$core$Maybe$Just(
+				var _p43 = otherHand;
+				if (_p43.ctor === 'Just') {
+					return A2(_cbenz$elm_bridge_game$Main$isFit, main, _p43._0) ? _elm_lang$core$Maybe$Just(
 						_elm_lang$core$List$sum(
 							A2(
 								_elm_lang$core$List$map,
@@ -9705,8 +9734,8 @@ var _cbenz$elm_bridge_game$Main$pointsMain = F2(
 			}()
 		};
 	});
-var _cbenz$elm_bridge_game$Main$viewMain = function (main) {
-	var viewMainCouleur = F2(
+var _cbenz$elm_bridge_game$Main$viewHand = function (main) {
+	var viewHandCouleur = F2(
 		function (couleur, cartes) {
 			return _elm_lang$core$Native_List.fromArray(
 				[
@@ -9729,9 +9758,9 @@ var _cbenz$elm_bridge_game$Main$viewMain = function (main) {
 						' ',
 						A2(
 							_elm_lang$core$List$map,
-							function (_p41) {
-								var _p42 = _p41;
-								return _cbenz$elm_bridge_game$Main$showValeurCarte(_p42._0);
+							function (_p44) {
+								var _p45 = _p44;
+								return _cbenz$elm_bridge_game$Main$showValeurCarte(_p45._0);
 							},
 							cartes)))
 				]);
@@ -9743,70 +9772,97 @@ var _cbenz$elm_bridge_game$Main$viewMain = function (main) {
 				_elm_lang$html$Html$li,
 				_elm_lang$core$Native_List.fromArray(
 					[]),
-				A2(viewMainCouleur, _cbenz$elm_bridge_game$Main$Pique, main.pique)),
+				A2(viewHandCouleur, _cbenz$elm_bridge_game$Main$Pique, main.pique)),
 				A2(
 				_elm_lang$html$Html$li,
 				_elm_lang$core$Native_List.fromArray(
 					[]),
-				A2(viewMainCouleur, _cbenz$elm_bridge_game$Main$Coeur, main.coeur)),
+				A2(viewHandCouleur, _cbenz$elm_bridge_game$Main$Coeur, main.coeur)),
 				A2(
 				_elm_lang$html$Html$li,
 				_elm_lang$core$Native_List.fromArray(
 					[]),
-				A2(viewMainCouleur, _cbenz$elm_bridge_game$Main$Carreau, main.carreau)),
+				A2(viewHandCouleur, _cbenz$elm_bridge_game$Main$Carreau, main.carreau)),
 				A2(
 				_elm_lang$html$Html$li,
 				_elm_lang$core$Native_List.fromArray(
 					[]),
-				A2(viewMainCouleur, _cbenz$elm_bridge_game$Main$Trefle, main.trefle))
+				A2(viewHandCouleur, _cbenz$elm_bridge_game$Main$Trefle, main.trefle))
 			]));
 };
-var _cbenz$elm_bridge_game$Main$viewDonne = function (_p43) {
-	var _p44 = _p43;
-	var _p48 = _p44.sud;
-	var _p47 = _p44.ouest;
-	var _p46 = _p44.nord;
-	var _p45 = _p44.est;
-	var mainChildren = F2(
-		function (main, otherMain) {
-			return _elm_lang$core$Native_List.fromArray(
+var _cbenz$elm_bridge_game$Main$viewDonne = F2(
+	function (_p46, hideOtherHands) {
+		var _p47 = _p46;
+		var _p51 = _p47.sud;
+		var _p50 = _p47.ouest;
+		var _p49 = _p47.nord;
+		var _p48 = _p47.est;
+		var hiddenHandDiv = A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
 				[
-					_cbenz$elm_bridge_game$Main$viewMain(main),
-					_cbenz$elm_bridge_game$Main$ulWithoutBullets(
+					_elm_lang$html$Html_Attributes$style(
 					_elm_lang$core$Native_List.fromArray(
 						[
-							A2(
-							_elm_lang$html$Html$li,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text(
-									_cbenz$elm_bridge_game$Main$showPoints(
-										A2(_cbenz$elm_bridge_game$Main$pointsMain, main, otherMain)))
-								])),
-							A2(
-							_elm_lang$html$Html$li,
-							_elm_lang$core$Native_List.fromArray(
-								[]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text(
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										_cbenz$elm_bridge_game$Main$showRepartition(main),
+							{ctor: '_Tuple2', _0: 'height', _1: '6em'}
+						]))
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('Main cachée')
+				]));
+		var mainChildren = F2(
+			function (main, otherHand) {
+				return _elm_lang$core$Native_List.fromArray(
+					[
+						_cbenz$elm_bridge_game$Main$viewHand(main),
+						_cbenz$elm_bridge_game$Main$ulWithoutBullets(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$li,
+								_elm_lang$core$Native_List.fromArray(
+									[]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text(
+										_cbenz$elm_bridge_game$Main$showPoints(
+											A2(_cbenz$elm_bridge_game$Main$pointsHand, main, otherHand)))
+									])),
+								A2(
+								_elm_lang$html$Html$li,
+								_elm_lang$core$Native_List.fromArray(
+									[]),
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html$text(
 										A2(
 											_elm_lang$core$Basics_ops['++'],
-											' (',
+											_cbenz$elm_bridge_game$Main$showRepartition(main),
 											A2(
 												_elm_lang$core$Basics_ops['++'],
-												_cbenz$elm_bridge_game$Main$isMainReguliere(main) ? 'régulière' : 'non régulière',
-												')'))))
-								]))
-						]))
-				]);
-		});
-	var flexItem = function (children) {
+												' (',
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													_cbenz$elm_bridge_game$Main$isHandReguliere(main) ? 'régulière' : 'non régulière',
+													')'))))
+									]))
+							]))
+					]);
+			});
+		var flexItem = function (children) {
+			return A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$style(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'flex', _1: '1 33%'}
+							]))
+					]),
+				children);
+		};
 		return A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
@@ -9814,71 +9870,62 @@ var _cbenz$elm_bridge_game$Main$viewDonne = function (_p43) {
 					_elm_lang$html$Html_Attributes$style(
 					_elm_lang$core$Native_List.fromArray(
 						[
-							{ctor: '_Tuple2', _0: 'flex', _1: '1 33%'}
+							{ctor: '_Tuple2', _0: 'display', _1: 'flex'},
+							{ctor: '_Tuple2', _0: 'flex-wrap', _1: 'wrap'}
 						]))
 				]),
-			children);
-	};
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$style(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						{ctor: '_Tuple2', _0: 'display', _1: 'flex'},
-						{ctor: '_Tuple2', _0: 'flex-wrap', _1: 'wrap'}
-					]))
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				flexItem(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('')
-					])),
-				flexItem(
-				A2(
-					mainChildren,
-					_p46,
-					_elm_lang$core$Maybe$Just(_p48))),
-				flexItem(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('')
-					])),
-				flexItem(
-				A2(
-					mainChildren,
-					_p47,
-					_elm_lang$core$Maybe$Just(_p45))),
-				flexItem(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('')
-					])),
-				flexItem(
-				A2(
-					mainChildren,
-					_p45,
-					_elm_lang$core$Maybe$Just(_p47))),
-				flexItem(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('')
-					])),
-				flexItem(
-				A2(
-					mainChildren,
-					_p48,
-					_elm_lang$core$Maybe$Just(_p46))),
-				flexItem(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('')
-					]))
-			]));
-};
+			_elm_lang$core$Native_List.fromArray(
+				[
+					flexItem(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('')
+						])),
+					flexItem(
+					hideOtherHands ? _elm_lang$core$Native_List.fromArray(
+						[hiddenHandDiv]) : A2(
+						mainChildren,
+						_p49,
+						_elm_lang$core$Maybe$Just(_p51))),
+					flexItem(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('')
+						])),
+					flexItem(
+					hideOtherHands ? _elm_lang$core$Native_List.fromArray(
+						[hiddenHandDiv]) : A2(
+						mainChildren,
+						_p50,
+						_elm_lang$core$Maybe$Just(_p48))),
+					flexItem(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('')
+						])),
+					flexItem(
+					hideOtherHands ? _elm_lang$core$Native_List.fromArray(
+						[hiddenHandDiv]) : A2(
+						mainChildren,
+						_p48,
+						_elm_lang$core$Maybe$Just(_p50))),
+					flexItem(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('')
+						])),
+					flexItem(
+					A2(
+						mainChildren,
+						_p51,
+						hideOtherHands ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p49))),
+					flexItem(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('')
+						]))
+				]));
+	});
 var _cbenz$elm_bridge_game$Main$Carte = F2(
 	function (a, b) {
 		return {ctor: 'Carte', _0: a, _1: b};
@@ -9894,28 +9941,28 @@ var _cbenz$elm_bridge_game$Main$cartes = A2(
 			_cbenz$elm_bridge_game$Main$valeurs);
 	},
 	_cbenz$elm_bridge_game$Main$couleurs);
-var _cbenz$elm_bridge_game$Main$isDonneValid = function (_p49) {
-	var _p50 = _p49;
+var _cbenz$elm_bridge_game$Main$isDonneValid = function (_p52) {
+	var _p53 = _p52;
 	var validLength = function (main) {
 		return _elm_lang$core$Native_Utils.eq(
 			_elm_lang$core$List$length(
-				_cbenz$elm_bridge_game$Main$concatMain(main)),
+				_cbenz$elm_bridge_game$Main$concatHand(main)),
 			13);
 	};
 	var mains = _elm_lang$core$Native_List.fromArray(
-		[_p50.nord, _p50.sud, _p50.est, _p50.ouest]);
-	var inOneOfMains = function (carte) {
+		[_p53.nord, _p53.sud, _p53.est, _p53.ouest]);
+	var inOneOfHands = function (carte) {
 		return A2(
 			_elm_lang$core$List$any,
 			function (main) {
 				return A2(
 					_elm_lang$core$List$member,
 					carte,
-					_cbenz$elm_bridge_game$Main$concatMain(main));
+					_cbenz$elm_bridge_game$Main$concatHand(main));
 			},
 			mains);
 	};
-	return A2(_elm_lang$core$List$all, validLength, mains) && A2(_elm_lang$core$List$all, inOneOfMains, _cbenz$elm_bridge_game$Main$cartes);
+	return A2(_elm_lang$core$List$all, validLength, mains) && A2(_elm_lang$core$List$all, inOneOfHands, _cbenz$elm_bridge_game$Main$cartes);
 };
 var _cbenz$elm_bridge_game$Main$cartesGenerator = A2(
 	_elm_lang$core$Random$map,
@@ -9995,7 +10042,7 @@ var _cbenz$elm_bridge_game$Main$donne1 = {
 };
 var _cbenz$elm_bridge_game$Main$init = {
 	ctor: '_Tuple2',
-	_0: {donne: _cbenz$elm_bridge_game$Main$donne1},
+	_0: {donne: _cbenz$elm_bridge_game$Main$donne1, hideOtherHands: false},
 	_1: _elm_lang$core$Platform_Cmd$none
 };
 var _cbenz$elm_bridge_game$Main$SansAtout = {ctor: 'SansAtout'};
@@ -10009,43 +10056,56 @@ var _cbenz$elm_bridge_game$Main$Enchere = function (a) {
 	return {ctor: 'Enchere', _0: a};
 };
 var _cbenz$elm_bridge_game$Main$nextEnchere = F2(
-	function (main, otherMain) {
-		var points = A2(_cbenz$elm_bridge_game$Main$pointsMain, main, otherMain);
+	function (main, otherHand) {
+		var points = A2(_cbenz$elm_bridge_game$Main$pointsHand, main, otherHand);
 		return (_elm_lang$core$Native_Utils.cmp(points.honneur, 12) > -1) ? ((_elm_lang$core$Native_Utils.cmp(
 			_elm_lang$core$List$length(main.pique),
 			5) > -1) ? _cbenz$elm_bridge_game$Main$Enchere(
 			{ctor: '_Tuple2', _0: 1, _1: _cbenz$elm_bridge_game$Main$EncherePique}) : ((_elm_lang$core$Native_Utils.cmp(
 			_elm_lang$core$List$length(main.coeur),
 			5) > -1) ? _cbenz$elm_bridge_game$Main$Enchere(
-			{ctor: '_Tuple2', _0: 1, _1: _cbenz$elm_bridge_game$Main$EnchereCoeur}) : (((_elm_lang$core$Native_Utils.cmp(points.honneur, 15) > -1) && ((_elm_lang$core$Native_Utils.cmp(points.honneur, 17) < 1) && _cbenz$elm_bridge_game$Main$isMainReguliere(main))) ? _cbenz$elm_bridge_game$Main$Enchere(
+			{ctor: '_Tuple2', _0: 1, _1: _cbenz$elm_bridge_game$Main$EnchereCoeur}) : (((_elm_lang$core$Native_Utils.cmp(points.honneur, 15) > -1) && ((_elm_lang$core$Native_Utils.cmp(points.honneur, 17) < 1) && _cbenz$elm_bridge_game$Main$isHandReguliere(main))) ? _cbenz$elm_bridge_game$Main$Enchere(
 			{ctor: '_Tuple2', _0: 1, _1: _cbenz$elm_bridge_game$Main$SansAtout}) : _cbenz$elm_bridge_game$Main$EnchereTodo))) : _cbenz$elm_bridge_game$Main$EnchereTodo;
 	});
+var _cbenz$elm_bridge_game$Main$HideOtherHands = function (a) {
+	return {ctor: 'HideOtherHands', _0: a};
+};
 var _cbenz$elm_bridge_game$Main$SetDonne = function (a) {
 	return {ctor: 'SetDonne', _0: a};
 };
 var _cbenz$elm_bridge_game$Main$update = F2(
 	function (msg, model) {
-		var _p51 = msg;
-		if (_p51.ctor === 'GenerateDonne') {
-			return {
-				ctor: '_Tuple2',
-				_0: model,
-				_1: A2(_elm_lang$core$Random$generate, _cbenz$elm_bridge_game$Main$SetDonne, _cbenz$elm_bridge_game$Main$donneGenerator)
-			};
-		} else {
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{donne: _p51._0}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
+		var _p54 = msg;
+		switch (_p54.ctor) {
+			case 'GenerateDonne':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: A2(_elm_lang$core$Random$generate, _cbenz$elm_bridge_game$Main$SetDonne, _cbenz$elm_bridge_game$Main$donneGenerator)
+				};
+			case 'SetDonne':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{donne: _p54._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{hideOtherHands: _p54._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
 var _cbenz$elm_bridge_game$Main$GenerateDonne = {ctor: 'GenerateDonne'};
-var _cbenz$elm_bridge_game$Main$view = function (_p52) {
-	var _p53 = _p52;
-	var _p54 = _p53.donne;
+var _cbenz$elm_bridge_game$Main$view = function (_p55) {
+	var _p56 = _p55;
+	var _p58 = _p56.hideOtherHands;
+	var _p57 = _p56.donne;
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -10060,7 +10120,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p52) {
 					[
 						_elm_lang$html$Html$text('🂡 Elm Bridge Game')
 					])),
-				_cbenz$elm_bridge_game$Main$viewDonne(_p54),
+				A2(_cbenz$elm_bridge_game$Main$viewDonne, _p57, _p58),
 				A2(
 				_elm_lang$html$Html$ul,
 				_elm_lang$core$Native_List.fromArray(
@@ -10079,7 +10139,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p52) {
 									'La donne est ',
 									A2(
 										_elm_lang$core$Basics_ops['++'],
-										_cbenz$elm_bridge_game$Main$isDonneValid(_p54) ? 'valide' : 'invalide',
+										_cbenz$elm_bridge_game$Main$isDonneValid(_p57) ? 'valide' : 'invalide',
 										'.')))
 							])),
 						A2(
@@ -10091,7 +10151,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p52) {
 								A2(
 								_cbenz$elm_bridge_game$Main$viewFits,
 								'Nord et Sud',
-								A2(_cbenz$elm_bridge_game$Main$getFits, _p54.nord, _p54.sud))
+								A2(_cbenz$elm_bridge_game$Main$getFits, _p57.nord, _p57.sud))
 							])),
 						A2(
 						_elm_lang$html$Html$li,
@@ -10102,7 +10162,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p52) {
 								A2(
 								_cbenz$elm_bridge_game$Main$viewFits,
 								'Est et Ouest',
-								A2(_cbenz$elm_bridge_game$Main$getFits, _p54.est, _p54.ouest))
+								A2(_cbenz$elm_bridge_game$Main$getFits, _p57.est, _p57.ouest))
 							])),
 						A2(
 						_elm_lang$html$Html$li,
@@ -10115,18 +10175,49 @@ var _cbenz$elm_bridge_game$Main$view = function (_p52) {
 									_elm_lang$core$Basics_ops['++'],
 									'Prochaine enchère pour Sud : ',
 									_cbenz$elm_bridge_game$Main$showEnchere(
-										A2(_cbenz$elm_bridge_game$Main$nextEnchere, _p54.sud, _elm_lang$core$Maybe$Nothing))))
+										A2(_cbenz$elm_bridge_game$Main$nextEnchere, _p57.sud, _elm_lang$core$Maybe$Nothing))))
 							]))
 					])),
 				A2(
-				_elm_lang$html$Html$button,
+				_elm_lang$html$Html$fieldset,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html_Events$onClick(_cbenz$elm_bridge_game$Main$GenerateDonne)
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('Générer')
+						A2(
+						_elm_lang$html$Html$button,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Events$onClick(_cbenz$elm_bridge_game$Main$GenerateDonne)
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('Générer')
+							])),
+						A2(
+						_elm_lang$html$Html$br,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[])),
+						A2(
+						_elm_lang$html$Html$label,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								A2(
+								_elm_lang$html$Html$input,
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_elm_lang$html$Html_Attributes$type$('checkbox'),
+										_elm_lang$html$Html_Events$onCheck(_cbenz$elm_bridge_game$Main$HideOtherHands),
+										_elm_lang$html$Html_Attributes$checked(_p58)
+									]),
+								_elm_lang$core$Native_List.fromArray(
+									[])),
+								_elm_lang$html$Html$text('Autres mains cachées')
+							]))
 					])),
 				A2(
 				_elm_lang$html$Html$hr,
