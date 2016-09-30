@@ -407,17 +407,43 @@ pointsMain main otherMain =
 
 showPoints : Points -> String
 showPoints { honneur, longueur, distribution } =
-    -- H et HL
-    -- H et HLD si fit
-    [ toString honneur ++ "H"
-    , case distribution of
-        Just distribution ->
-            toString (honneur + longueur + distribution) ++ "HLD"
+    let
+        extended =
+            case distribution of
+                Just distribution ->
+                    honneur + longueur + distribution
 
-        Nothing ->
-            toString (honneur + longueur) ++ "HL"
-    ]
-        |> String.join " "
+                Nothing ->
+                    honneur + longueur
+    in
+        ((toString honneur
+            ++ "H"
+            ++ if extended == honneur then
+                ("("
+                    ++ (case distribution of
+                            Just _ ->
+                                "LD"
+
+                            Nothing ->
+                                "L"
+                       )
+                    ++ ")"
+                )
+               else
+                ""
+         )
+            :: if extended == honneur then
+                []
+               else
+                [ case distribution of
+                    Just distribution ->
+                        toString (honneur + longueur + distribution) ++ "HLD"
+
+                    Nothing ->
+                        toString (honneur + longueur) ++ "HL"
+                ]
+        )
+            |> String.join " "
 
 
 showRepartition : Main -> String
