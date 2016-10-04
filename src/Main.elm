@@ -733,56 +733,64 @@ update msg model =
 view : Model -> Html Msg
 view { donne, hideOtherHands } =
     div
-        [ style [ ( "margin", "1em" ) ] ]
-        [ h1 [] [ text "🂡 Jeu de Bridge" ]
-        , viewDonne donne hideOtherHands
-        , ul []
-            [ li []
-                [ text
-                    ("La donne est "
-                        ++ (if isDonneValid donne then
-                                "valide"
-                            else
-                                "invalide"
-                           )
-                        ++ "."
-                    )
-                ]
-            , li [] [ viewFits "Nord et Sud" (getFits donne.nord donne.sud) ]
-            , li [] [ viewFits "Est et Ouest" (getFits donne.est donne.ouest) ]
-            , li []
-                [ text "Prochaine enchère pour Sud : "
-                , viewEnchere (nextEnchere donne.sud Nothing)
-                ]
+        [ style
+            [ ( "margin", "1em" )
             ]
-        , fieldset []
-            [ fieldset []
-                [ legend [] [ text "Contraintes pour Sud" ]
-                , choices
-                    "Main"
-                    "hand"
-                    GenerateHandType
-                    (List.map
-                        (\x -> ( showHandType x, x ))
-                        [ Reguliere, Unicolore, Bicolore, Quelconque ]
-                    )
-                    3
-                , choices
-                    "Fitté avec Nord"
-                    "fitWithNord"
-                    GenerateFittedWithNord
-                    [ ( "oui", Just True )
-                    , ( "non", Just False )
-                    , ( "peu importe", Nothing )
+        ]
+        [ h1 [] [ text "🂡 Jeu de Bridge" ]
+        , div [ class "row" ]
+            [ div [ class "col-xs-12 col-sm-5" ]
+                [ viewDonne donne hideOtherHands ]
+            , div [ class "col-xs-12 col-sm-7" ]
+                [ ul []
+                    [ li []
+                        [ text
+                            ("La donne est "
+                                ++ (if isDonneValid donne then
+                                        "valide"
+                                    else
+                                        "invalide"
+                                   )
+                                ++ "."
+                            )
+                        ]
+                    , li [] [ viewFits "Nord et Sud" (getFits donne.nord donne.sud) ]
+                    , li [] [ viewFits "Est et Ouest" (getFits donne.est donne.ouest) ]
+                    , li []
+                        [ text "Prochaine enchère pour Sud : "
+                        , viewEnchere (nextEnchere donne.sud Nothing)
+                        ]
                     ]
-                    2
-                , br [] []
-                , button [ onClick GenerateDonne ] [ text "Générer" ]
-                ]
-            , br [] []
-            , label []
-                [ input [ type' "checkbox", onCheck HideOtherHands, checked hideOtherHands ] []
-                , text "Autres mains cachées"
+                , div []
+                    [ fieldset []
+                        [ legend [] [ text "Contraintes pour Sud" ]
+                        , choices
+                            "Main"
+                            "hand"
+                            GenerateHandType
+                            (List.map
+                                (\x -> ( showHandType x, x ))
+                                [ Reguliere, Unicolore, Bicolore, Quelconque ]
+                            )
+                            3
+                        , choices
+                            "Fitté avec Nord"
+                            "fitWithNord"
+                            GenerateFittedWithNord
+                            [ ( "oui", Just True )
+                            , ( "non", Just False )
+                            , ( "peu importe", Nothing )
+                            ]
+                            2
+                        , br [] []
+                        , button [ onClick GenerateDonne ] [ text "Générer" ]
+                        ]
+                    , br [] []
+                    , label []
+                        [ input [ type' "checkbox", onCheck HideOtherHands, checked hideOtherHands ] []
+                        , text "Autres mains cachées"
+                        ]
+                    ]
                 ]
             ]
         , footer [ style [ ( "margin-top", "5em" ) ] ]
@@ -799,7 +807,9 @@ viewDonne : Donne -> Bool -> Html msg
 viewDonne { nord, sud, est, ouest } hideOtherHands =
     let
         flexItem children =
-            div [ style [ ( "flex", "1 33%" ) ] ] children
+            div
+                [ class "col-xs-4" ]
+                [ squareDiv children ]
 
         handChildren hand otherHand =
             [ viewHand hand
@@ -824,43 +834,38 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
                 ]
             ]
 
-        hiddenHandDiv =
-            div
-                [ style [ ( "height", "6em" ) ] ]
-                [ text "Main cachée" ]
+        hiddenHand =
+            text "Main cachée"
+
+        emptyFlexItem =
+            flexItem [ text "" ]
     in
         div
-            [ style
-                [ ( "display", "flex" )
-                , ( "flex-wrap", "wrap" )
-                , ( "font-size", "large" )
-                , ( "padding", "1em" )
-                , ( "border", "1px solid" )
-                , ( "background-color", "rgb(76, 175, 80)" )
-                ]
+            [ class "row"
+            , style [ ( "background-color", "lightgray" ), ( "padding", "1em" ) ]
             ]
-            [ flexItem [ text "" ]
+            [ emptyFlexItem
             , flexItem
                 (if hideOtherHands then
-                    [ hiddenHandDiv ]
+                    [ hiddenHand ]
                  else
                     handChildren nord (Just sud)
                 )
-            , flexItem [ text "" ]
+            , emptyFlexItem
             , flexItem
                 (if hideOtherHands then
-                    [ hiddenHandDiv ]
+                    [ hiddenHand ]
                  else
                     handChildren ouest (Just est)
                 )
-            , flexItem [ text "" ]
+            , emptyFlexItem
             , flexItem
                 (if hideOtherHands then
-                    [ hiddenHandDiv ]
+                    [ hiddenHand ]
                  else
                     handChildren est (Just ouest)
                 )
-            , flexItem [ text "" ]
+            , emptyFlexItem
             , flexItem
                 (handChildren sud
                     (if hideOtherHands then
@@ -869,7 +874,7 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
                         Just nord
                     )
                 )
-            , flexItem [ text "" ]
+            , emptyFlexItem
             ]
 
 
@@ -1009,6 +1014,27 @@ choices title nameAttribute tagger labelAndValueList initialCheckedIndex =
                         labelAndValueList
                    )
             )
+
+
+squareDiv : List (Html msg) -> Html msg
+squareDiv children =
+    div
+        [ style
+            [ ( "padding-bottom", "100%" )
+            , ( "position", "relative" )
+            ]
+        ]
+        [ div
+            [ style
+                [ ( "position", "absolute" )
+                , ( "top", "0" )
+                , ( "right", "0" )
+                , ( "bottom", "0" )
+                , ( "left", "0" )
+                ]
+            ]
+            children
+        ]
 
 
 
