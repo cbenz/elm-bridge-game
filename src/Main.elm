@@ -737,7 +737,7 @@ view { donne, hideOtherHands } =
             [ ( "margin", "1em" )
             ]
         ]
-        [ h1 [] [ text "🂡 Jeu de Bridge" ]
+        [ h1 [] [ text "Jeu de Bridge" ]
         , div [ class "row" ]
             [ div [ class "col-xs-12 col-sm-5" ]
                 [ viewDonne donne hideOtherHands ]
@@ -806,13 +806,10 @@ view { donne, hideOtherHands } =
 viewDonne : Donne -> Bool -> Html msg
 viewDonne { nord, sud, est, ouest } hideOtherHands =
     let
-        flexItem children =
-            div
-                [ class "col-xs-4" ]
-                [ squareDiv children ]
-
         handChildren hand otherHand =
-            [ viewHand hand
+            [ div
+                [ style [ ( "white-space", "nowrap" ) ] ]
+                [ viewHand hand ]
             , ulWithoutBullets [ style [ ( "margin-top", "0.5em" ) ] ]
                 [ li [] [ text (showPoints (pointsHand hand otherHand)) ]
                 , li []
@@ -836,45 +833,52 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
 
         hiddenHand =
             text "Main cachée"
-
-        emptyFlexItem =
-            flexItem [ text "" ]
     in
-        div
+        squareDiv
             [ class "row"
             , style [ ( "background-color", "lightgray" ), ( "padding", "1em" ) ]
             ]
-            [ emptyFlexItem
-            , flexItem
-                (if hideOtherHands then
-                    [ hiddenHand ]
-                 else
-                    handChildren nord (Just sud)
-                )
-            , emptyFlexItem
-            , flexItem
+            [ div
+                [ class "col-xs-4", style [ ( "margin", "auto 0" ) ] ]
                 (if hideOtherHands then
                     [ hiddenHand ]
                  else
                     handChildren ouest (Just est)
                 )
-            , emptyFlexItem
-            , flexItem
+            , div
+                [ class "col-xs-4"
+                , style
+                    [ ( "display", "flex" )
+                    , ( "flex-direction", "column" )
+                    , ( "justify-content", "space-between" )
+                    ]
+                ]
+                [ div []
+                    (if hideOtherHands then
+                        [ hiddenHand ]
+                     else
+                        handChildren nord (Just sud)
+                    )
+                , div []
+                    (handChildren sud
+                        (if hideOtherHands then
+                            Nothing
+                         else
+                            Just nord
+                        )
+                    )
+                ]
+            , div
+                [ class "col-xs-4 row"
+                , style [ ( "margin", "auto 0" ) ]
+                ]
                 (if hideOtherHands then
                     [ hiddenHand ]
                  else
-                    handChildren est (Just ouest)
+                    [ div [ class "col-xs" ] []
+                    , div [] (handChildren est (Just ouest))
+                    ]
                 )
-            , emptyFlexItem
-            , flexItem
-                (handChildren sud
-                    (if hideOtherHands then
-                        Nothing
-                     else
-                        Just nord
-                    )
-                )
-            , emptyFlexItem
             ]
 
 
@@ -1016,8 +1020,8 @@ choices title nameAttribute tagger labelAndValueList initialCheckedIndex =
             )
 
 
-squareDiv : List (Html msg) -> Html msg
-squareDiv children =
+squareDiv : List (Html.Attribute msg) -> List (Html.Html msg) -> Html.Html msg
+squareDiv attributes children =
     div
         [ style
             [ ( "padding-bottom", "100%" )
@@ -1025,14 +1029,16 @@ squareDiv children =
             ]
         ]
         [ div
-            [ style
+            ([ style
                 [ ( "position", "absolute" )
                 , ( "top", "0" )
                 , ( "right", "0" )
                 , ( "bottom", "0" )
                 , ( "left", "0" )
                 ]
-            ]
+             ]
+                ++ attributes
+            )
             children
         ]
 
