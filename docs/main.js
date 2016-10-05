@@ -9127,37 +9127,41 @@ var _elm_community$random_extra$Random_Array$rangeLengthArray = F3(
 			A2(_elm_lang$core$Random$int, minLength, maxLength));
 	});
 
-var _cbenz$elm_bridge_game$Main$squareDiv = function (children) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$style(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						{ctor: '_Tuple2', _0: 'padding-bottom', _1: '100%'},
-						{ctor: '_Tuple2', _0: 'position', _1: 'relative'}
-					]))
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html$div,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$style(
+var _cbenz$elm_bridge_game$Main$squareDiv = F2(
+	function (attributes, children) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$style(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'padding-bottom', _1: '100%'},
+							{ctor: '_Tuple2', _0: 'position', _1: 'relative'}
+						]))
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$div,
+					A2(
+						_elm_lang$core$Basics_ops['++'],
 						_elm_lang$core$Native_List.fromArray(
 							[
-								{ctor: '_Tuple2', _0: 'position', _1: 'absolute'},
-								{ctor: '_Tuple2', _0: 'top', _1: '0'},
-								{ctor: '_Tuple2', _0: 'right', _1: '0'},
-								{ctor: '_Tuple2', _0: 'bottom', _1: '0'},
-								{ctor: '_Tuple2', _0: 'left', _1: '0'}
-							]))
-					]),
-				children)
-			]));
-};
+								_elm_lang$html$Html_Attributes$style(
+								_elm_lang$core$Native_List.fromArray(
+									[
+										{ctor: '_Tuple2', _0: 'position', _1: 'absolute'},
+										{ctor: '_Tuple2', _0: 'top', _1: '0'},
+										{ctor: '_Tuple2', _0: 'right', _1: '0'},
+										{ctor: '_Tuple2', _0: 'bottom', _1: '0'},
+										{ctor: '_Tuple2', _0: 'left', _1: '0'}
+									]))
+							]),
+						attributes),
+					children)
+				]));
+	});
 var _cbenz$elm_bridge_game$Main$choices = F5(
 	function (title, nameAttribute, tagger, labelAndValueList, initialCheckedIndex) {
 		var labelWithSpaceStyle = _elm_lang$core$Native_List.fromArray(
@@ -10112,7 +10116,20 @@ var _cbenz$elm_bridge_game$Main$viewDonne = F2(
 			function (hand, otherHand) {
 				return _elm_lang$core$Native_List.fromArray(
 					[
-						_cbenz$elm_bridge_game$Main$viewHand(hand),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$style(
+								_elm_lang$core$Native_List.fromArray(
+									[
+										{ctor: '_Tuple2', _0: 'white-space', _1: 'nowrap'}
+									]))
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_cbenz$elm_bridge_game$Main$viewHand(hand)
+							])),
 						A2(
 						_cbenz$elm_bridge_game$Main$ulWithoutBullets,
 						_elm_lang$core$Native_List.fromArray(
@@ -10159,25 +10176,8 @@ var _cbenz$elm_bridge_game$Main$viewDonne = F2(
 							]))
 					]);
 			});
-		var flexItem = function (children) {
-			return A2(
-				_elm_lang$html$Html$div,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$class('col-xs-4')
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_cbenz$elm_bridge_game$Main$squareDiv(children)
-					]));
-		};
-		var emptyFlexItem = flexItem(
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text('')
-				]));
 		return A2(
-			_elm_lang$html$Html$div,
+			_cbenz$elm_bridge_game$Main$squareDiv,
 			_elm_lang$core$Native_List.fromArray(
 				[
 					_elm_lang$html$Html_Attributes$class('row'),
@@ -10190,34 +10190,86 @@ var _cbenz$elm_bridge_game$Main$viewDonne = F2(
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[
-					emptyFlexItem,
-					flexItem(
-					hideOtherHands ? _elm_lang$core$Native_List.fromArray(
-						[hiddenHand]) : A2(
-						handChildren,
-						_p54,
-						_elm_lang$core$Maybe$Just(_p56))),
-					emptyFlexItem,
-					flexItem(
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('col-xs-4'),
+							_elm_lang$html$Html_Attributes$style(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{ctor: '_Tuple2', _0: 'margin', _1: 'auto 0'}
+								]))
+						]),
 					hideOtherHands ? _elm_lang$core$Native_List.fromArray(
 						[hiddenHand]) : A2(
 						handChildren,
 						_p55,
 						_elm_lang$core$Maybe$Just(_p53))),
-					emptyFlexItem,
-					flexItem(
-					hideOtherHands ? _elm_lang$core$Native_List.fromArray(
-						[hiddenHand]) : A2(
-						handChildren,
-						_p53,
-						_elm_lang$core$Maybe$Just(_p55))),
-					emptyFlexItem,
-					flexItem(
 					A2(
-						handChildren,
-						_p56,
-						hideOtherHands ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p54))),
-					emptyFlexItem
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('col-xs-4'),
+							_elm_lang$html$Html_Attributes$style(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{ctor: '_Tuple2', _0: 'display', _1: 'flex'},
+									{ctor: '_Tuple2', _0: 'flex-direction', _1: 'column'},
+									{ctor: '_Tuple2', _0: 'justify-content', _1: 'space-between'}
+								]))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$div,
+							_elm_lang$core$Native_List.fromArray(
+								[]),
+							hideOtherHands ? _elm_lang$core$Native_List.fromArray(
+								[hiddenHand]) : A2(
+								handChildren,
+								_p54,
+								_elm_lang$core$Maybe$Just(_p56))),
+							A2(
+							_elm_lang$html$Html$div,
+							_elm_lang$core$Native_List.fromArray(
+								[]),
+							A2(
+								handChildren,
+								_p56,
+								hideOtherHands ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(_p54)))
+						])),
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('col-xs-4 row'),
+							_elm_lang$html$Html_Attributes$style(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{ctor: '_Tuple2', _0: 'margin', _1: 'auto 0'}
+								]))
+						]),
+					hideOtherHands ? _elm_lang$core$Native_List.fromArray(
+						[hiddenHand]) : _elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$div,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('col-xs')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
+							A2(
+							_elm_lang$html$Html$div,
+							_elm_lang$core$Native_List.fromArray(
+								[]),
+							A2(
+								handChildren,
+								_p53,
+								_elm_lang$core$Maybe$Just(_p55)))
+						]))
 				]));
 	});
 var _cbenz$elm_bridge_game$Main$SansAtout = {ctor: 'SansAtout'};
@@ -10346,7 +10398,7 @@ var _cbenz$elm_bridge_game$Main$view = function (_p61) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text('🂡 Jeu de Bridge')
+						_elm_lang$html$Html$text('Jeu de Bridge')
 					])),
 				A2(
 				_elm_lang$html$Html$div,
