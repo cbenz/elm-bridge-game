@@ -839,11 +839,16 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
             , style [ ( "background-color", "lightgray" ), ( "padding", "1em" ) ]
             ]
             [ div
-                [ class "col-xs-4", style [ ( "margin", "auto 0" ) ] ]
+                [ class "col-xs-4 row"
+                , style [ ( "margin", "auto 0" ) ]
+                ]
                 (if hideOtherHands then
                     [ hiddenHand ]
                  else
-                    handChildren ouest (Just est)
+                    [ div [ class "col-xs" ] []
+                    , div [] (handChildren ouest (Just est))
+                    , div [ class "col-xs" ] []
+                    ]
                 )
             , div
                 [ class "col-xs-4"
@@ -877,6 +882,7 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
                  else
                     [ div [ class "col-xs" ] []
                     , div [] (handChildren est (Just ouest))
+                    , div [ class "col-xs" ] []
                     ]
                 )
             ]
