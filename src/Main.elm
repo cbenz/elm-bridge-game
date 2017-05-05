@@ -1,7 +1,6 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.App
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import String
@@ -13,9 +12,9 @@ import Random.Array
 -- MAIN
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    Html.App.program
+    Html.program
         { init = init
         , update = update
         , subscriptions = always Sub.none
@@ -787,7 +786,7 @@ view { donne, hideOtherHands } =
                         ]
                     , br [] []
                     , label []
-                        [ input [ type' "checkbox", onCheck HideOtherHands, checked hideOtherHands ] []
+                        [ input [ type_ "checkbox", onCheck HideOtherHands, checked hideOtherHands ] []
                         , text "Autres mains cachées"
                         ]
                     ]
@@ -815,15 +814,15 @@ viewDonne { nord, sud, est, ouest } hideOtherHands =
                 , li []
                     [ text
                         (let
-                            handType' =
+                            handType_ =
                                 handType hand
                          in
                             showRepartition hand
-                                ++ if handType' == Quelconque then
+                                ++ if handType_ == Quelconque then
                                     ""
                                    else
                                     (" ("
-                                        ++ (showHandType handType')
+                                        ++ (showHandType handType_)
                                         ++ ")"
                                     )
                         )
@@ -1012,7 +1011,7 @@ choices title nameAttribute tagger labelAndValueList initialCheckedIndex =
                         (\index ( labelText, value ) ->
                             label [ style labelWithSpaceStyle ]
                                 [ input
-                                    [ type' "radio"
+                                    [ type_ "radio"
                                     , name nameAttribute
                                     , onCheck (always (tagger value))
                                     , checked (index == initialCheckedIndex)
